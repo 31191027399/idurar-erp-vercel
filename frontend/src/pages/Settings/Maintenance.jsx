@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Alert, Button, Card, Space, Typography, message } from 'antd';
+import { Alert, Button, Card, Form, InputNumber, Space, Typography, message } from 'antd';
 import { request } from '@/request';
 import useLanguage from '@/locale/useLanguage';
 import { useDispatch } from 'react-redux';
 import { settingsAction } from '@/redux/settings/actions';
 
 const { Paragraph, Text, Title } = Typography;
+const DEFAULT_COUNTS = { clients: 20, quotes: 20, invoices: 20, payments: 20 };
 
 export default function Maintenance() {
   const translate = useLanguage();
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
   const [loadingAction, setLoadingAction] = useState('');
   const [seedResult, setSeedResult] = useState(null);
 
@@ -44,24 +46,52 @@ export default function Maintenance() {
     message.error(data?.message || translate('maintenance_action_failed'));
   };
 
+  const getSeedCounts = () => ({
+    ...DEFAULT_COUNTS,
+    ...form.getFieldsValue(true),
+  });
+
   return (
     <Card>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <div>
           <Title level={4} style={{ marginBottom: 8 }}>
-            {translate('maintenance_tools')}
+            Demo ERP Maintenance
           </Title>
           <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-            {translate('maintenance_tools_description')}
+            Clean existing ERP records or reseed a linked demo dataset without replacing the
+            current admin users. Client, accepted quote, invoice, and payment counts default to 20
+            records each and can be adjusted before seeding.
           </Paragraph>
         </div>
 
         <Alert
           type="warning"
           showIcon
-          message={translate('maintenance_warning_title')}
-          description={translate('maintenance_warning_description')}
+          message="Owner-only maintenance actions"
+          description="Cleaning removes current customers, quotes, invoices, payments, taxes, payment modes, and settings. Seeding preserves admin accounts, then rebuilds related ERP demo records that stay linked together."
         />
+
+        <Form form={form} layout="vertical" initialValues={DEFAULT_COUNTS}>
+          <Space wrap size="large">
+            <Form.Item label="Clients" name="clients" style={{ minWidth: 120, marginBottom: 0 }}>
+              <InputNumber min={1} max={200} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item label="Accepted Quotes" name="quotes" style={{ minWidth: 140, marginBottom: 0 }}>
+              <InputNumber min={0} max={200} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item label="Invoices" name="invoices" style={{ minWidth: 120, marginBottom: 0 }}>
+              <InputNumber min={0} max={200} style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item label="Linked Payments" name="payments" style={{ minWidth: 140, marginBottom: 0 }}>
+              <InputNumber min={0} max={200} style={{ width: '100%' }} />
+            </Form.Item>
+          </Space>
+          <Paragraph type="secondary" style={{ marginTop: 16, marginBottom: 0 }}>
+            Seeding creates customers, accepted quotes, invoices, and linked payments that follow
+            the same ERP relationships. Current admin users stay unchanged.
+          </Paragraph>
+        </Form>
 
         <Space wrap>
           <Button
@@ -86,12 +116,12 @@ export default function Maintenance() {
               runAction({
                 type: 'seed',
                 entity: 'admin/maintenance/seed',
-                payload: { clean: true },
-                successMessage: translate('maintenance_seed_success'),
+                payload: { clean: true, counts: getSeedCounts() },
+                successMessage: 'ERP demo data cleaned and seeded successfully.',
               })
             }
           >
-            {translate('maintenance_seed_action')}
+            Seed Demo Data
           </Button>
         </Space>
 
@@ -99,25 +129,15 @@ export default function Maintenance() {
           <Alert
             type="success"
             showIcon
-            message={translate('maintenance_seed_result')}
+            message="Demo data ready"
             description={
               <Space direction="vertical" size="small">
+                <Text>Owner preserved: {seedResult.owner.email}</Text>
                 <Text>
-                  {translate('maintenance_owner_login')}: {seedResult.owner.email} /{' '}
-                  {seedResult.owner.password}
+                  Seeded {seedResult.summary.clients} clients, {seedResult.summary.quotes}{' '}
+                  accepted quotes, {seedResult.summary.invoices} invoices, and{' '}
+                  {seedResult.summary.payments} linked payments.
                 </Text>
-                <Text>
-                  {translate('maintenance_manager_login')}: {seedResult.manager.email} /{' '}
-                  {seedResult.manager.password}
-                </Text>
-                <Text>
-                  {translate('maintenance_seeded_summary')} {seedResult.summary.clients}{' '}
-                  {translate('customers').toLowerCase()}, {seedResult.summary.quotes}{' '}
-                  {translate('quotes').toLowerCase()}, {seedResult.summary.invoices}{' '}
-                  {translate('invoices').toLowerCase()}, {seedResult.summary.payments}{' '}
-                  {translate('payments').toLowerCase()}.
-                </Text>
-                <Text type="warning">{translate('maintenance_relogin_notice')}</Text>
               </Space>
             }
           />

@@ -22,7 +22,8 @@ async function clean(req, res) {
 async function seed(req, res) {
   ensureOwner(req);
   const cleanFirst = req.body?.clean !== false;
-  const result = await seedDatabase({ clean: cleanFirst });
+  const counts = req.body?.counts || {};
+  const result = await seedDatabase({ clean: cleanFirst, ownerAdmin: req.admin, counts });
 
   return res.status(200).json({
     success: true,

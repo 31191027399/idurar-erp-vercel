@@ -10,22 +10,34 @@ const mongoose = require('mongoose');
 
 const shouldClean = process.argv.includes('--clean');
 
-const seedConfig = {
-  owner: {
-    email: process.env.SEED_ADMIN_EMAIL || 'admin@admin.com',
-    password: process.env.SEED_ADMIN_PASSWORD || 'admin123',
-    name: process.env.SEED_ADMIN_NAME || 'IDURAR',
-    surname: process.env.SEED_ADMIN_SURNAME || 'Admin',
-    role: 'owner',
-  },
-  manager: {
-    email: process.env.SEED_MANAGER_EMAIL || 'manager@idurar.com',
-    password: process.env.SEED_MANAGER_PASSWORD || 'manager123',
-    name: 'Olivia',
-    surname: 'Nguyen',
-    role: 'manager',
-  },
+const DEFAULT_COUNTS = {
+  clients: 20,
+  quotes: 20,
+  invoices: 20,
+  payments: 20,
 };
+
+const COMPANY_NAMES = [
+  'Blue Orchid Studio',
+  'Mekong Retail Group',
+  'Lotus Harbor Logistics',
+  'Saigon Craft House',
+  'Delta Fresh Foods',
+  'Urban Nest Interiors',
+  'Bamboo Peak Ventures',
+  'Sunrise Wellness Clinic',
+  'Golden River Trading',
+  'Cloud Nine Media',
+];
+
+const SERVICE_CATALOG = [
+  { itemName: 'ERP onboarding package', description: 'Initial process mapping and account setup', price: 1200 },
+  { itemName: 'Workflow implementation sprint', description: 'Custom workflow and dashboard setup', price: 1800 },
+  { itemName: 'Monthly support retainer', description: 'Priority support for finance and operations teams', price: 300 },
+  { itemName: 'POS rollout package', description: 'Outlet configuration and cashier training', price: 650 },
+  { itemName: 'Inventory audit session', description: 'Stock audit and reconciliation workshop', price: 420 },
+  { itemName: 'Reporting automation', description: 'Finance and sales report automation bundle', price: 950 },
+];
 
 async function connect() {
   if (!process.env.DATABASE) {
@@ -46,31 +58,44 @@ function loadModels() {
   }
 }
 
-function createPasswordHash(AdminPassword, password) {
-  const salt = uniqueId();
-  const passwordHash = new AdminPassword().generateHash(salt, password);
-  return { salt, passwordHash };
+function normalizeCounts(counts = {}) {
+  return {
+    clients: Math.max(1, Number(counts.clients ?? DEFAULT_COUNTS.clients)),
+    quotes: Math.max(0, Number(counts.quotes ?? DEFAULT_COUNTS.quotes)),
+    invoices: Math.max(0, Number(counts.invoices ?? DEFAULT_COUNTS.invoices)),
+    payments: Math.max(0, Number(counts.payments ?? DEFAULT_COUNTS.payments)),
+  };
 }
 
-async function createAdminAccount(adminData) {
+async function resolveOwner(ownerAdmin) {
   const Admin = mongoose.model('Admin');
-  const AdminPassword = mongoose.model('AdminPassword');
-  const existingAdmin = await Admin.findOne({ email: adminData.email }).exec();
 
-  if (existingAdmin) {
-    throw new Error(`Admin with email ${adminData.email} already exists. Run with --clean or change email.`);
+  if (ownerAdmin?._id) {
+    return ownerAdmin;
   }
 
+  const existingOwner =
+    (await Admin.findOne({ role: 'owner', removed: false }).exec()) ||
+    (await Admin.findOne({ removed: false }).exec());
+
+  if (existingOwner) {
+    return existingOwner;
+  }
+
+  const AdminPassword = mongoose.model('AdminPassword');
+  const email = process.env.SEED_ADMIN_EMAIL || 'admin@admin.com';
+  const password = process.env.SEED_ADMIN_PASSWORD || 'admin123';
   const admin = await new Admin({
-    email: adminData.email,
-    name: adminData.name,
-    surname: adminData.surname,
+    email,
+    name: process.env.SEED_ADMIN_NAME || 'IDURAR',
+    surname: process.env.SEED_ADMIN_SURNAME || 'Admin',
     enabled: true,
-    role: adminData.role,
+    role: 'owner',
     removed: false,
   }).save();
 
-  const { salt, passwordHash } = createPasswordHash(AdminPassword, adminData.password);
+  const salt = uniqueId();
+  const passwordHash = new AdminPassword().generateHash(salt, password);
 
   await new AdminPassword({
     user: admin._id,
@@ -85,42 +110,35 @@ async function createAdminAccount(adminData) {
   return admin;
 }
 
-async function seedSettings(primaryClientId) {
-  const Setting = mongoose.model('Setting');
-  const settingsFiles = globSync(path.join(__dirname, 'defaultSettings/**/*.json'));
+function buildItems(seedIndex) {
+  const primary = SERVICE_CATALOG[seedIndex % SERVICE_CATALOG.length];
+  const secondary = SERVICE_CATALOG[(seedIndex + 1) % SERVICE_CATALOG.length];
+  const quantity = (seedIndex % 3) + 1;
 
-  for (const filePath of settingsFiles) {
-    const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    for (const setting of settings) {
-      await new Setting(setting).save();
-    }
-  }
+  return [
+    {
+      itemName: primary.itemName,
+      description: primary.description,
+      quantity,
+      price: primary.price,
+      total: quantity * primary.price,
+    },
+    {
+      itemName: secondary.itemName,
+      description: secondary.description,
+      quantity: 1,
+      price: secondary.price,
+      total: secondary.price,
+    },
+  ];
+}
 
-  const overrides = {
-    idurar_app_email: seedConfig.owner.email,
-    idurar_app_company_email: seedConfig.owner.email,
-    company_email: seedConfig.owner.email,
-    company_name: 'IDURAR Demo Company',
-    company_country: 'Vietnam',
-    company_state: 'Ho Chi Minh City',
-    company_address: '42 Nguyen Hue Boulevard',
-    company_phone: '+84 28 1234 5678',
-    company_website: 'https://idurar-erp-vercel.vercel.app',
-    default_currency_code: 'USD',
-    currency_name: 'US Dollar',
-    currency_symbol: '$',
-    idurar_app_country: 'Vietnam',
-    idurar_app_timezone: 'Asia/Ho_Chi_Minh',
-    pos_default_client: String(primaryClientId),
-    last_invoice_number: 2,
-    last_quote_number: 1,
-    last_payment_number: 2,
-    last_offer_number: 0,
-  };
-
-  for (const [settingKey, settingValue] of Object.entries(overrides)) {
-    await Setting.updateOne({ settingKey }, { $set: { settingValue } }).exec();
-  }
+function summarize(items, taxRate = 0, discount = 0) {
+  const subTotal = items.reduce((sum, item) => sum + item.total, 0);
+  const taxable = subTotal - discount;
+  const taxTotal = Number(((taxable * taxRate) / 100).toFixed(2));
+  const total = Number((taxable + taxTotal).toFixed(2));
+  return { subTotal, taxTotal, total };
 }
 
 async function seedDefaults() {
@@ -150,215 +168,210 @@ async function seedDefaults() {
   ]);
 }
 
-async function seedClients(owner, manager) {
+async function seedClients(owner, clientCount) {
   const Client = mongoose.model('Client');
-  return Client.insertMany([
-    {
-      name: 'Blue Orchid Studio',
-      phone: '+84 901 111 222',
+  const docs = Array.from({ length: clientCount }, (_, index) => {
+    const companyName = COMPANY_NAMES[index % COMPANY_NAMES.length];
+    const serial = index + 1;
+
+    return {
+      name: clientCount <= COMPANY_NAMES.length ? companyName : `${companyName} ${serial}`,
+      phone: `+84 90${String(1000000 + serial).slice(-7)}`,
       country: 'Vietnam',
-      address: '12 Le Loi Street, District 1',
-      email: 'finance@blueorchid.vn',
-      createdBy: owner._id,
-      assigned: manager._id,
-      removed: false,
-      enabled: true,
-    },
-    {
-      name: 'Mekong Retail Group',
-      phone: '+84 902 333 444',
-      country: 'Vietnam',
-      address: '88 Tran Hung Dao, District 5',
-      email: 'accounts@mekongretail.vn',
+      address: `${10 + serial} Nguyen Hue Boulevard, District ${(serial % 7) + 1}`,
+      email: `finance${serial}@demo-client${serial}.vn`,
       createdBy: owner._id,
       assigned: owner._id,
       removed: false,
       enabled: true,
-    },
-  ]);
+    };
+  });
+
+  return Client.insertMany(docs);
 }
 
-function buildItems(lines) {
-  return lines.map((line) => ({
-    itemName: line.itemName,
-    description: line.description,
-    quantity: line.quantity,
-    price: line.price,
-    total: line.quantity * line.price,
-  }));
-}
-
-function summarize(items, taxRate = 0, discount = 0) {
-  const subTotal = items.reduce((sum, item) => sum + item.total, 0);
-  const taxable = subTotal - discount;
-  const taxTotal = Number(((taxable * taxRate) / 100).toFixed(2));
-  const total = taxable + taxTotal;
-  return { subTotal, taxTotal, total };
-}
-
-async function seedSales(owner, clients) {
+async function seedQuotes(owner, clients, quoteCount) {
   const Quote = mongoose.model('Quote');
+  const docs = [];
+
+  for (let index = 0; index < quoteCount; index += 1) {
+    const items = buildItems(index);
+    const quoteSummary = summarize(items, 10, 0);
+    const client = clients[index % clients.length];
+
+    docs.push({
+      createdBy: owner._id,
+      number: index + 1,
+      year: 2026,
+      date: new Date(Date.UTC(2026, 3, 1 + index)),
+      expiredDate: new Date(Date.UTC(2026, 3, 10 + index)),
+      client: client._id,
+      items,
+      taxRate: 10,
+      subTotal: quoteSummary.subTotal,
+      taxTotal: quoteSummary.taxTotal,
+      total: quoteSummary.total,
+      currency: 'USD',
+      discount: 0,
+      status: 'accepted',
+      notes: `Accepted commercial quote ${index + 1} for ${client.name}.`,
+      removed: false,
+    });
+  }
+
+  return Quote.insertMany(docs);
+}
+
+async function seedInvoices(owner, clients, quotes, invoiceCount) {
   const Invoice = mongoose.model('Invoice');
+  const invoices = [];
+
+  for (let index = 0; index < invoiceCount; index += 1) {
+    const items = buildItems(index + 10);
+    const discount = index % 2 === 0 ? 100 : 0;
+    const taxRate = index % 3 === 0 ? 10 : 0;
+    const invoiceSummary = summarize(items, taxRate, discount);
+    const client = clients[index % clients.length];
+    const linkedQuote = quotes.length ? quotes[index % quotes.length] : null;
+    const issuedDate = new Date(Date.UTC(2026, 3, 3 + index));
+
+    invoices.push({
+      createdBy: owner._id,
+      number: index + 1,
+      year: 2026,
+      content: `Seeded invoice ${index + 1}`,
+      date: issuedDate,
+      expiredDate: new Date(Date.UTC(2026, 3, 17 + index)),
+      client: client._id,
+      converted: linkedQuote
+        ? {
+            from: 'quote',
+            quote: linkedQuote._id,
+          }
+        : undefined,
+      items,
+      taxRate,
+      subTotal: invoiceSummary.subTotal,
+      taxTotal: invoiceSummary.taxTotal,
+      total: invoiceSummary.total,
+      currency: 'USD',
+      credit: 0,
+      discount,
+      payment: [],
+      paymentStatus: 'unpaid',
+      approved: true,
+      status: 'sent',
+      notes: `Seeded invoice ${index + 1} for ${client.name}.`,
+      removed: false,
+    });
+  }
+
+  return Invoice.insertMany(invoices);
+}
+
+async function seedPayments(owner, invoices, paymentCount) {
   const Payment = mongoose.model('Payment');
+  if (!invoices.length || paymentCount === 0) {
+    return [];
+  }
 
-  const quoteItems = buildItems([
-    {
-      itemName: 'ERP onboarding package',
-      description: 'Initial process mapping and account setup',
-      quantity: 1,
-      price: 1200,
-    },
-    {
-      itemName: 'User training',
-      description: 'Two remote training sessions for accounting team',
-      quantity: 2,
-      price: 250,
-    },
-  ]);
-  const quoteSummary = summarize(quoteItems, 10, 0);
+  const docs = [];
+  for (let index = 0; index < paymentCount; index += 1) {
+    const invoice = invoices[index % invoices.length];
+    const ratio = index % 2 === 0 ? 0.5 : 1;
+    const amount = Number((invoice.total * ratio).toFixed(2));
 
-  const quote = await new Quote({
-    createdBy: owner._id,
-    number: 1,
-    year: 2026,
-    date: new Date('2026-04-01T09:00:00.000Z'),
-    expiredDate: new Date('2026-04-15T09:00:00.000Z'),
-    client: clients[0]._id,
-    items: quoteItems,
-    taxRate: 10,
-    subTotal: quoteSummary.subTotal,
-    taxTotal: quoteSummary.taxTotal,
-    total: quoteSummary.total,
-    currency: 'USD',
-    discount: 0,
-    status: 'accepted',
-    notes: 'Approved by client and ready for invoicing.',
-    removed: false,
-  }).save();
-
-  const invoiceOneItems = buildItems([
-    {
-      itemName: 'Implementation sprint',
-      description: 'Custom workflow and dashboard setup',
-      quantity: 1,
-      price: 1800,
-    },
-    {
-      itemName: 'Monthly support',
-      description: 'Priority email support for April',
-      quantity: 1,
-      price: 300,
-    },
-  ]);
-  const invoiceOneSummary = summarize(invoiceOneItems, 10, 100);
-
-  const invoiceOne = await new Invoice({
-    createdBy: owner._id,
-    number: 1,
-    year: 2026,
-    content: 'April implementation invoice',
-    date: new Date('2026-04-03T09:00:00.000Z'),
-    expiredDate: new Date('2026-04-17T09:00:00.000Z'),
-    client: clients[0]._id,
-    converted: {
-      from: 'quote',
-      quote: quote._id,
-    },
-    items: invoiceOneItems,
-    taxRate: 10,
-    subTotal: invoiceOneSummary.subTotal,
-    taxTotal: invoiceOneSummary.taxTotal,
-    total: invoiceOneSummary.total,
-    currency: 'USD',
-    credit: 800,
-    discount: 100,
-    paymentStatus: 'partially',
-    approved: true,
-    status: 'sent',
-    notes: 'Client paid deposit, remaining balance due.',
-    removed: false,
-  }).save();
-
-  const invoiceTwoItems = buildItems([
-    {
-      itemName: 'POS rollout package',
-      description: 'Outlet configuration for 3 locations',
-      quantity: 3,
-      price: 650,
-    },
-  ]);
-  const invoiceTwoSummary = summarize(invoiceTwoItems, 0, 0);
-
-  const invoiceTwo = await new Invoice({
-    createdBy: owner._id,
-    number: 2,
-    year: 2026,
-    content: 'Retail rollout invoice',
-    date: new Date('2026-04-05T09:00:00.000Z'),
-    expiredDate: new Date('2026-04-20T09:00:00.000Z'),
-    client: clients[1]._id,
-    items: invoiceTwoItems,
-    taxRate: 0,
-    subTotal: invoiceTwoSummary.subTotal,
-    taxTotal: invoiceTwoSummary.taxTotal,
-    total: invoiceTwoSummary.total,
-    currency: 'USD',
-    credit: invoiceTwoSummary.total,
-    discount: 0,
-    paymentStatus: 'paid',
-    approved: true,
-    status: 'sent',
-    notes: 'Paid in full on receipt.',
-    removed: false,
-  }).save();
-
-  const payments = await Payment.insertMany([
-    {
+    docs.push({
       createdBy: owner._id,
-      number: 1,
-      client: clients[0]._id,
-      invoice: invoiceOne._id,
-      date: new Date('2026-04-08T09:00:00.000Z'),
-      amount: 800,
-      currency: 'USD',
-      ref: 'DEP-APR-001',
-      description: 'Initial deposit for implementation sprint',
+      number: index + 1,
+      client: invoice.client._id || invoice.client,
+      invoice: invoice._id,
+      date: new Date(Date.UTC(2026, 3, 8 + index)),
+      amount,
+      currency: invoice.currency,
+      ref: `PMT-${String(index + 1).padStart(4, '0')}`,
+      description: `Seeded payment ${index + 1} for invoice ${invoice.number}`,
       removed: false,
-    },
-    {
-      createdBy: owner._id,
-      number: 2,
-      client: clients[1]._id,
-      invoice: invoiceTwo._id,
-      date: new Date('2026-04-06T09:00:00.000Z'),
-      amount: invoiceTwoSummary.total,
-      currency: 'USD',
-      ref: 'POS-APR-002',
-      description: 'Full payment for retail rollout package',
-      removed: false,
-    },
-  ]);
+    });
+  }
 
-  await Invoice.updateOne(
-    { _id: invoiceOne._id },
-    { $set: { payment: [payments[0]._id], updated: new Date() } }
-  ).exec();
-  await Invoice.updateOne(
-    { _id: invoiceTwo._id },
-    { $set: { payment: [payments[1]._id], updated: new Date() } }
-  ).exec();
+  return Payment.insertMany(docs);
+}
+
+async function reconcileInvoices(invoices, payments) {
+  const Invoice = mongoose.model('Invoice');
+  const paymentMap = new Map();
+
+  for (const payment of payments) {
+    const key = String(payment.invoice._id || payment.invoice);
+    const current = paymentMap.get(key) || [];
+    current.push(payment);
+    paymentMap.set(key, current);
+  }
+
+  for (const invoice of invoices) {
+    const linkedPayments = paymentMap.get(String(invoice._id)) || [];
+    const paidAmount = linkedPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const remaining = Number((invoice.total - paidAmount).toFixed(2));
+
+    let paymentStatus = 'unpaid';
+    if (paidAmount > 0 && remaining > 0) paymentStatus = 'partially';
+    if (remaining <= 0) paymentStatus = 'paid';
+
+    await Invoice.updateOne(
+      { _id: invoice._id },
+      {
+        $set: {
+          payment: linkedPayments.map((payment) => payment._id),
+          credit: Math.max(remaining, 0),
+          paymentStatus,
+          updated: new Date(),
+        },
+      }
+    ).exec();
+  }
+}
+
+async function seedSettings(primaryClientId, ownerEmail, counts) {
+  const Setting = mongoose.model('Setting');
+  const settingsFiles = globSync(path.join(__dirname, 'defaultSettings/**/*.json'));
+
+  for (const filePath of settingsFiles) {
+    const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    for (const setting of settings) {
+      await new Setting(setting).save();
+    }
+  }
+
+  const overrides = {
+    idurar_app_email: ownerEmail,
+    idurar_app_company_email: ownerEmail,
+    company_email: ownerEmail,
+    company_name: 'IDURAR Demo Company',
+    company_country: 'Vietnam',
+    company_state: 'Ho Chi Minh City',
+    company_address: '42 Nguyen Hue Boulevard',
+    company_phone: '+84 28 1234 5678',
+    company_website: 'https://idurar-erp-vercel.vercel.app',
+    default_currency_code: 'USD',
+    currency_name: 'US Dollar',
+    currency_symbol: '$',
+    idurar_app_country: 'Vietnam',
+    idurar_app_timezone: 'Asia/Ho_Chi_Minh',
+    pos_default_client: String(primaryClientId),
+    last_invoice_number: counts.invoices,
+    last_quote_number: counts.quotes,
+    last_payment_number: counts.payments,
+    last_offer_number: 0,
+  };
+
+  for (const [settingKey, settingValue] of Object.entries(overrides)) {
+    await Setting.updateOne({ settingKey }, { $set: { settingValue } }).exec();
+  }
 }
 
 async function cleanDatabase({ preserveAdmins = false } = {}) {
-  const modelsToClear = [
-    'Payment',
-    'Invoice',
-    'Quote',
-    'Client',
-    'PaymentMode',
-    'Taxes',
-    'Setting',
-  ];
+  const modelsToClear = ['Payment', 'Invoice', 'Quote', 'Client', 'PaymentMode', 'Taxes', 'Setting'];
 
   if (!preserveAdmins) {
     modelsToClear.push('AdminPassword', 'Admin');
@@ -371,42 +384,37 @@ async function cleanDatabase({ preserveAdmins = false } = {}) {
   console.log('Cleaned ERP collections');
 }
 
-async function seedDatabase({ clean = false } = {}) {
+async function seedDatabase({ clean = false, ownerAdmin = null, counts = {} } = {}) {
   await connect();
   loadModels();
 
   if (clean) {
-    await cleanDatabase();
+    await cleanDatabase({ preserveAdmins: true });
   }
 
-  const owner = await createAdminAccount(seedConfig.owner);
-  const manager = await createAdminAccount(seedConfig.manager);
+  const normalizedCounts = normalizeCounts(counts);
+  const owner = await resolveOwner(ownerAdmin);
   await seedDefaults();
-  const clients = await seedClients(owner, manager);
-  await seedSettings(clients[0]._id);
-  await seedSales(owner, clients);
+  const clients = await seedClients(owner, normalizedCounts.clients);
+  const quotes = await seedQuotes(owner, clients, normalizedCounts.quotes);
+  const invoices = await seedInvoices(owner, clients, quotes, normalizedCounts.invoices);
+  const payments = await seedPayments(owner, invoices, normalizedCounts.payments);
+  await reconcileInvoices(invoices, payments);
+  await seedSettings(clients[0]._id, owner.email, normalizedCounts);
 
   return {
-    owner: { email: seedConfig.owner.email, password: seedConfig.owner.password },
-    manager: { email: seedConfig.manager.email, password: seedConfig.manager.password },
-    summary: {
-      clients: clients.length,
-      quotes: 1,
-      invoices: 2,
-      payments: 2,
-    },
+    owner: { email: owner.email, role: owner.role },
+    summary: normalizedCounts,
   };
 }
 
-async function runSeed({ clean = false } = {}) {
+async function runSeed({ clean = false, counts = {} } = {}) {
   try {
-    const result = await seedDatabase({ clean });
-
+    const result = await seedDatabase({ clean, counts });
     console.log('Seed completed successfully');
-    console.log(`Owner login: ${result.owner.email} / ${result.owner.password}`);
-    console.log(`Manager login: ${result.manager.email} / ${result.manager.password}`);
+    console.log(`Owner preserved: ${result.owner.email} (${result.owner.role})`);
     console.log(
-      `Seeded ${result.summary.clients} clients, ${result.summary.quotes} quote, ${result.summary.invoices} invoices, ${result.summary.payments} payments.`
+      `Seeded ${result.summary.clients} clients, ${result.summary.quotes} quotes, ${result.summary.invoices} invoices, ${result.summary.payments} payments.`
     );
   } catch (error) {
     console.error('Seed failed:', error.message);
@@ -420,7 +428,7 @@ async function runCleanOnly() {
   try {
     await connect();
     loadModels();
-    await cleanDatabase();
+    await cleanDatabase({ preserveAdmins: true });
     console.log('Database cleaned successfully');
   } catch (error) {
     console.error('Clean failed:', error.message);
@@ -431,6 +439,7 @@ async function runCleanOnly() {
 }
 
 module.exports = {
+  DEFAULT_COUNTS,
   cleanDatabase,
   seedDatabase,
   runSeed,
