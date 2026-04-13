@@ -1,4 +1,4 @@
-const createUserController = require('@/controllers/middlewaresControllers/createUserController');
+const createUserController = require('../../middlewaresControllers/createUserController');
 
 const create = require('./create');
 const list = require('./list');

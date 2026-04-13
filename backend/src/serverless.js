@@ -1,5 +1,3 @@
-require('module-alias/register');
-
 const path = require('path');
 const mongoose = require('mongoose');
 const { globSync } = require('glob');
