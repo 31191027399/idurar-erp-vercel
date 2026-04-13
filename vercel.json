@@ -4,7 +4,10 @@
   "installCommand": "npm install && cd backend && npm install",
   "functions": {
     "api/index.js": {
-      "includeFiles": "backend/src/**"
+      "includeFiles": [
+        "backend/src/**",
+        "backend/node_modules/**"
+      ]
     }
   },
   "rewrites": [
