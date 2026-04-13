@@ -8,12 +8,6 @@
     { "source": "/public/(.*)", "destination": "/api" },
     { "source": "/((?!api|download|public|assets).*)", "destination": "/index.html" }
   ],
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 10
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
