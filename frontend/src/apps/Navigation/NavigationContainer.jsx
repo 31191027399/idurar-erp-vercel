@@ -92,6 +92,11 @@ function Sidebar({ collapsible, isMobile = false }) {
       icon: <SettingOutlined />,
     },
     {
+      key: 'users',
+      label: <Link to={'/users'}>{translate('users')}</Link>,
+      icon: <UserOutlined />,
+    },
+    {
       key: 'about',
       label: <Link to={'/about'}>{translate('about')}</Link>,
       icon: <ReconciliationOutlined />,

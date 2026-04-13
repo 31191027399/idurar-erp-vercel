@@ -450,6 +450,10 @@ const lang = {
   offers: 'Offers',
   proforma_invoices: 'quote',
   search: 'search',
+  users: 'Users',
+  user: 'User',
+  users_list: 'Users List',
+  add_new_user: 'Add New User',
 };
 
 export default lang;
