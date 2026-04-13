@@ -2,6 +2,11 @@
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install && cd backend && npm install",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "backend/src/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/download/(.*)", "destination": "/api" },
