@@ -1,8 +1,10 @@
-require('dotenv').config({ path: '.env' });
-require('dotenv').config({ path: '.env.local' });
 const { globSync } = require('glob');
 const fs = require('fs');
+const path = require('path');
 const { generate: uniqueId } = require('shortid');
+
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../../.env.local') });
 
 const mongoose = require('mongoose');
 
@@ -58,7 +60,7 @@ const setup = async (req, res) => {
 
   const settingData = [];
 
-  const settingsFiles = globSync('./src/setup/defaultSettings/**/*.json');
+  const settingsFiles = globSync(path.join(__dirname, '../../setup/defaultSettings/**/*.json'));
 
   for (const filePath of settingsFiles) {
     const file = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
