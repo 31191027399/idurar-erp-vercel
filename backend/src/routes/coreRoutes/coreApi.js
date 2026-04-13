@@ -18,6 +18,8 @@ router.route('/admin/delete/:id').delete(catchErrors(adminController.delete));
 router.route('/admin/list').get(catchErrors(adminController.list));
 router.route('/admin/search').get(catchErrors(adminController.search));
 router.route('/admin/password-update/:id').patch(catchErrors(adminController.updatePassword));
+router.route('/admin/maintenance/clean').post(catchErrors(adminController.maintenance.clean));
+router.route('/admin/maintenance/seed').post(catchErrors(adminController.maintenance.seed));
 
 //_______________________________ Admin Profile _______________________________
 

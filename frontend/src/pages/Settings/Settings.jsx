@@ -4,6 +4,7 @@ import {
   DollarOutlined,
   FileImageOutlined,
   TrophyOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 
 import TabsContent from '@/components/TabsContent/TabsContent';
@@ -13,6 +14,7 @@ import GeneralSettings from './GeneralSettings';
 import CompanySettings from './CompanySettings';
 import FinanceSettings from './FinanceSettings';
 import MoneyFormatSettings from './MoneyFormatSettings';
+import Maintenance from './Maintenance';
 
 import useLanguage from '@/locale/useLanguage';
 import { useParams } from 'react-router-dom';
@@ -50,6 +52,12 @@ export default function Settings() {
       label: translate('Finance Settings'),
       icon: <CreditCardOutlined />,
       children: <FinanceSettings />,
+    },
+    {
+      key: 'maintenance',
+      label: translate('maintenance_tools'),
+      icon: <ToolOutlined />,
+      children: <Maintenance />,
     },
   ];
 

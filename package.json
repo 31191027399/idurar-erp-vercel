@@ -12,6 +12,8 @@
     "build": "cd frontend && npm run build",
     "start": "node backend/src/server.js",
     "setup": "node backend/src/setup/setup.js",
+    "seed": "node backend/src/setup/seed.js",
+    "seed:clean": "node backend/src/setup/seed.js --clean",
     "postinstall": "cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {

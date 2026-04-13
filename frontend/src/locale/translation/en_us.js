@@ -454,6 +454,27 @@ const lang = {
   user: 'User',
   users_list: 'Users List',
   add_new_user: 'Add New User',
+  maintenance_tools: 'Maintenance Tools',
+  maintenance_tools_description:
+    'Clean demo data or rebuild a related ERP demo dataset directly from the admin panel.',
+  maintenance_warning_title: 'Owner-only maintenance actions',
+  maintenance_warning_description:
+    'Cleaning will remove current ERP records. Clean and seed will rebuild users, clients, quote, invoices, payments, taxes, payment modes, and settings.',
+  maintenance_clean_action: 'Clean ERP Data',
+  maintenance_seed_action: 'Clean And Seed Demo Data',
+  maintenance_clean_confirm:
+    'This will permanently remove current ERP demo data. Do you want to continue?',
+  maintenance_seed_confirm:
+    'This will wipe current ERP data and rebuild a linked demo dataset. Do you want to continue?',
+  maintenance_clean_success: 'ERP data cleaned successfully.',
+  maintenance_seed_success: 'ERP demo data cleaned and seeded successfully.',
+  maintenance_action_failed: 'Maintenance action failed.',
+  maintenance_seed_result: 'Demo data ready',
+  maintenance_owner_login: 'Owner login',
+  maintenance_manager_login: 'Manager login',
+  maintenance_seeded_summary: 'Seeded summary:',
+  maintenance_relogin_notice:
+    'Your current session may be replaced by the seeded owner account. Log in again after seeding if the app asks for authentication.',
 };
 
 export default lang;
