@@ -1,101 +1,163 @@
-<div align="center">
-    <a href="https://www.idurarapp.com/">
-  <img src="https://avatars.githubusercontent.com/u/50052356?s=200&v=4" width="128px" />
-    </a>
-    <h1>Open Source ERP / CRM Accounting Invoice Quote</h1>
-    <p align="center">
-        <p>IDURAR ERP CRM | Simple To Use</p>
-    </p>
-    
+# IDURAR ERP CRM - Vercel + MongoDB Atlas Deployment
+
+This is a modified version of [IDURAR ERP CRM](https://github.com/idurar/idurar-erp-crm) configured for deployment on Vercel with MongoDB Atlas.
+
+## Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/idurar-erp-crm)
+
+## Prerequisites
+
+1. **MongoDB Atlas Account** (Free Tier)
+   - Create at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+   - Create a free cluster
+   - Get connection string from Connect > Connect your application
+
+2. **Vercel Account**
+   - Create at [vercel.com](https://vercel.com)
+
+## Step-by-Step Deployment
+
+### 1. MongoDB Atlas Setup
+
+1. Create a free cluster at MongoDB Atlas
+2. Create a database user (Security > Database Access)
+3. Whitelist all IPs (Security > Network Access > Allow Access from Anywhere)
+4. Get connection string: Connect > Connect your application > Node.js
+   - Replace `<password>` with your database user password
+   - Replace `<dbname>` with `idurar`
+
+### 2. Deploy to Vercel
+
+1. Fork this repository
+2. Import to Vercel:
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Import your forked repository
+   - Framework Preset: **Vite**
+
+3. Add Environment Variables in Vercel:
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `DATABASE` | MongoDB connection string | ✅ Yes |
+| `JWT_SECRET` | Random 32+ char string | ✅ Yes |
+| `NODE_ENV` | `production` | ✅ Yes |
+| `OPENAI_API_KEY` | Your OpenAI key | ❌ Optional |
+| `FRONTEND_URL` | Your Vercel URL | ❌ Optional |
+
+### 3. Initialize Database
+
+After first deployment, run the setup:
+
+**Option A:** Via Vercel CLI
+```bash
+vercel env pull .env.local
+npm run setup
+```
+
+**Option B:** Via MongoDB Atlas Shell
+1. Go to MongoDB Atlas > Collections
+2. Create collections manually following the schema
+
+### 4. Create Admin User
+
+The setup script creates a default admin:
+- Email: `admin@demo.com`
+- Password: `admin123`
+
+⚠️ **Change this password immediately after first login!**
+
+## Environment Variables
+
+```env
+# Required
+DATABASE=mongodb+srv://user:pass@cluster.mongodb.net/idurar?retryWrites=true&w=majority
+JWT_SECRET=your-super-secret-key-at-least-32-characters
+NODE_ENV=production
+
+# Optional - Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Optional - AI Features
+OPENAI_API_KEY=sk-...
+
+# Optional - File Storage (S3)
+FILE_STORAGE=s3
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket
+```
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your MongoDB connection string
+
+# Run setup (first time only)
+npm run setup
+
+# Start development servers
+npm run dev
+```
+
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8888
+
+## Project Structure
 
 ```
- Give a Star ⭐️ & Fork to this project ... Happy coding! 🤩`
+├── api/
+│   └── index.js          # Vercel serverless entry point
+├── backend/
+│   ├── src/
+│   │   ├── app.js        # Express app
+│   │   ├── server.js     # Local development server
+│   │   ├── controllers/  # Request handlers
+│   │   ├── models/       # Mongoose models
+│   │   ├── routes/       # API routes
+│   │   └── ...
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── modules/      # Feature modules
+│   │   ├── config/       # API configuration
+│   │   └── ...
+│   ├── package.json
+│   └── vite.config.js
+├── vercel.json           # Vercel routing config
+├── package.json          # Root package.json
+└── README.md
 ```
 
-IDURAR is Open Source ERP / CRM (Invoice / Quote / Accounting ) Based on Advanced Mern Stack (Node.js / Express.js / MongoDb / React.js ) with Ant Design (AntD) and Redux
+## Troubleshooting
 
-</div>
+### MongoDB Connection Errors
+- Verify connection string format
+- Ensure IP whitelist includes `0.0.0.0/0` (all IPs)
+- Check database user credentials
 
-**🚀 Self-hosted Entreprise Version** : [https://cloud.idurarapp.com](https://cloud.idurarapp.com)
+### 500 Internal Server Error
+- Check Vercel logs for details
+- Verify all required env vars are set
+- Ensure DATABASE URL is correct
 
-
-
-## Features :
-
-Invoice Management
-
-Payment Management
-
-Quote Management
-
-Customer Management
-
-Ant Design Framework(AntD) 🐜
-
-Based on Mern Stack (Node.js / Express.js / MongoDb / React.js ) 👨‍💻
-
-### May i can use IDURAR for Commercial use :
-
-- Yes You can use IDURAR for free for personal or Commercial use.
-
-## Our Sponsors
-
-  <a href="https://m.do.co/c/4ead8370b905?ref=idurarapp.com">
-    <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg" width="201px">
-  </a>
-
-#
-
-<img width="1403" alt="Open Source ERP CRM" src="https://github.com/idurar/idurar-erp-crm/assets/136928179/a6712286-7ca6-4822-8902-fb7523533ee8">
-
-## Free Open Source ERP / CRM App
-
-IDURAR is Open "Fair-Code" Source ERP / CRM (Invoice / Inventory / Accounting / HR) Based on Mern Stack (Node.js / Express.js / MongoDb / React.js ) with Ant Design (AntD) and Redux
-
-
-## Getting started
-
-1.[Clone the repository](INSTALLATION-INSTRUCTIONS.md#step-1-clone-the-repository)
-
-2.[Create Your MongoDB Account and Database Cluster](INSTALLATION-INSTRUCTIONS.md#Step-2-Create-Your-MongoDB-Account-and-Database-Cluster)
-
-3.[Edit the Environment File](INSTALLATION-INSTRUCTIONS.md#Step-3-Edit-the-Environment-File)
-
-4.[Update MongoDB URI](INSTALLATION-INSTRUCTIONS.md#Step-4-Update-MongoDB-URI)
-
-5.[Install Backend Dependencies](INSTALLATION-INSTRUCTIONS.md#Step-5-Install-Backend-Dependencies)
-
-6.[Run Setup Script](INSTALLATION-INSTRUCTIONS.md#Step-6-Run-Setup-Script)
-
-7.[Run the Backend Server](INSTALLATION-INSTRUCTIONS.md#Step-7-Run-the-Backend-Server)
-
-8.[Install Frontend Dependencies](INSTALLATION-INSTRUCTIONS.md#Step-8-Install-Frontend-Dependencies)
-
-9.[Run the Frontend Server](INSTALLATION-INSTRUCTIONS.md#Step-9-Run-the-Frontend-Server)
-
-## Contributing
-
-1.[How to contribute](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#how-to-contribute)
-
-2.[Reporting issues](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#reporting-issues)
-
-3.[Working on issues ](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#working-on-issues)
-
-4.[Submitting pull requests](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#submitting-pull-requests)
-
-5.[Commit Guidelines](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#commit-guidelines)
-
-6.[Coding Guidelines](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#coding-guidelines)
-
-7.[Questions](https://github.com/idurar/idurar-erp-crm/blob/master/CONTRIBUTING.md#questions)
-
-
-## Show your support
-
-Dont forget to give a ⭐️ to this project ... Happy coding!
-
-**🚀 Self-hosted Entreprise Version** : [https://cloud.idurarapp.com](https://cloud.idurarapp.com)
+### Build Errors
+- Node.js version must be 20.x
+- Clear Vercel cache and rebuild
 
 ## License
 
-IDURAR is Free Open Source Released under the GNU Affero General Public License v3.0.
+This project uses the Fair-code License. See [LICENSE](LICENSE) for details.
+
+## Credits
+
+Original project: [IDURAR ERP CRM](https://github.com/idurar/idurar-erp-crm)

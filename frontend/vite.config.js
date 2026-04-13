@@ -14,15 +14,30 @@ export default ({ mode }) => {
   const config = {
     plugins: [react()],
     resolve: {
-      base: '/',
       alias: {
         '@': path.resolve(__dirname, 'src'),
       },
+    },
+    root: path.resolve(__dirname),
+    base: '/',
+    build: {
+      outDir: path.resolve(__dirname, '../dist'),
+      emptyOutDir: true,
     },
     server: {
       port: 3000,
       proxy: {
         '/api': {
+          target: proxy_url,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/download': {
+          target: proxy_url,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/public': {
           target: proxy_url,
           changeOrigin: true,
           secure: false,

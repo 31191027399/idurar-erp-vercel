@@ -1,0 +1,23 @@
+{
+  "name": "idurar-erp-crm",
+  "version": "4.1.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:server": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "node backend/src/server.js",
+    "setup": "node backend/src/setup/setup.js",
+    "postinstall": "cd backend && npm install && cd ../frontend && npm install"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
