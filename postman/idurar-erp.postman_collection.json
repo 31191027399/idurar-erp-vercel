@@ -1,0 +1,328 @@
+{
+  "info": {
+    "name": "IDURAR ERP API",
+    "_postman_id": "0a7f2f40-cf1e-4f5a-8c86-14ccdc4e07c9",
+    "description": "Postman collection based on the current IDURAR ERP backend routes in backend/src/routes. Use the collection variables to switch entities and ids.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8888" },
+    { "key": "token", "value": "" },
+    { "key": "adminId", "value": "" },
+    { "key": "settingId", "value": "" },
+    { "key": "settingKey", "value": "company_name" },
+    { "key": "entity", "value": "client" },
+    { "key": "entityId", "value": "" },
+    { "key": "mailEntity", "value": "invoice" },
+    { "key": "publicSubPath", "value": "images" },
+    { "key": "publicDirectory", "value": "logo" },
+    { "key": "publicFile", "value": "sample.png" },
+    { "key": "downloadDirectory", "value": "invoice" },
+    { "key": "downloadFile", "value": "invoice-RECORD_ID.pdf" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"admin123\",\n  \"remember\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/login",
+            "description": "Returns JWT at result.token."
+          }
+        },
+        {
+          "name": "Forget Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@admin.com\"\n}"
+            },
+            "url": "{{baseUrl}}/api/forgetpassword"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{adminId}}\",\n  \"resetToken\": \"RESET_TOKEN\",\n  \"password\": \"new-password\"\n}"
+            },
+            "url": "{{baseUrl}}/api/resetpassword"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@example.com\",\n  \"name\": \"Demo\",\n  \"surname\": \"Manager\",\n  \"role\": \"manager\",\n  \"enabled\": true,\n  \"password\": \"manager123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/create"
+          }
+        },
+        { "name": "Read Admin", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/read/{{adminId}}" } },
+        {
+          "name": "Update Admin",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated\",\n  \"surname\": \"User\",\n  \"role\": \"employee\",\n  \"enabled\": true\n}" },
+            "url": "{{baseUrl}}/api/admin/update/{{adminId}}"
+          }
+        },
+        { "name": "Delete Admin", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/delete/{{adminId}}" } },
+        { "name": "List Admins", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/list?page=1&items=10&sortBy=enabled&sortValue=-1" } },
+        { "name": "Search Admins", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/search?q=admin&fields=name,email" } },
+        {
+          "name": "Update Admin Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"new-password\"\n}" },
+            "url": "{{baseUrl}}/api/admin/password-update/{{adminId}}"
+          }
+        },
+        {
+          "name": "Update Profile Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"admin123\",\n  \"newPassword\": \"new-password\"\n}" },
+            "url": "{{baseUrl}}/api/admin/profile/password"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Owner", "type": "text" },
+                { "key": "surname", "value": "Updated", "type": "text" },
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            },
+            "url": "{{baseUrl}}/api/admin/profile/update"
+          }
+        },
+        {
+          "name": "Maintenance Clean",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/admin/maintenance/clean"
+          }
+        },
+        {
+          "name": "Maintenance Seed",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clean\": true,\n  \"counts\": {\n    \"clients\": 20,\n    \"quotes\": 20,\n    \"invoices\": 20,\n    \"payments\": 20\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/maintenance/seed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "Create Setting",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"settingCategory\": \"company\",\n  \"settingKey\": \"company_name\",\n  \"settingValue\": \"IDURAR Demo Company\",\n  \"valueType\": \"String\"\n}" },
+            "url": "{{baseUrl}}/api/setting/create"
+          }
+        },
+        { "name": "Read Setting", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/read/{{settingId}}" } },
+        {
+          "name": "Update Setting",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"settingValue\": \"Updated Company\"\n}" },
+            "url": "{{baseUrl}}/api/setting/update/{{settingId}}"
+          }
+        },
+        { "name": "Search Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/search?q=company&fields=settingKey,settingCategory" } },
+        { "name": "List Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/list?page=1&items=10" } },
+        { "name": "List All Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/listAll" } },
+        { "name": "Filter Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/filter?filter=settingCategory&equal=company" } },
+        { "name": "Read By Setting Key", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/readBySettingKey/{{settingKey}}" } },
+        { "name": "List By Setting Key", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/listBySettingKey" } },
+        {
+          "name": "Update By Setting Key",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"settingValue\": \"Updated by key\"\n}" },
+            "url": "{{baseUrl}}/api/setting/updateBySettingKey/{{settingKey}}"
+          }
+        },
+        {
+          "name": "Upload Setting Value",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "settingValue", "type": "file", "src": "" }]
+            },
+            "url": "{{baseUrl}}/api/setting/upload/{{settingKey}}"
+          }
+        },
+        {
+          "name": "Update Many Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"settings\": [\n    { \"settingKey\": \"company_name\", \"settingValue\": \"IDURAR\" },\n    { \"settingKey\": \"company_phone\", \"settingValue\": \"+84 28 1234 5678\" }\n  ]\n}" },
+            "url": "{{baseUrl}}/api/setting/updateManySetting"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ERP Generic",
+      "description": "Set {{entity}} to one of: client, invoice, payment, paymentmode, quote, taxes.",
+      "item": [
+        {
+          "name": "Entity Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Name\"\n}"
+            },
+            "url": "{{baseUrl}}/api/{{entity}}/create",
+            "description": "Use a body that matches the selected entity schema."
+          }
+        },
+        { "name": "Entity Read", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/read/{{entityId}}" } },
+        {
+          "name": "Entity Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\"\n}" },
+            "url": "{{baseUrl}}/api/{{entity}}/update/{{entityId}}"
+          }
+        },
+        { "name": "Entity Delete", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/delete/{{entityId}}" } },
+        { "name": "Entity Search", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/search?q=sample&fields=name" } },
+        { "name": "Entity List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/list?page=1&items=10&sortBy=created&sortValue=-1" } },
+        { "name": "Entity List All", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/listAll" } },
+        { "name": "Entity Filter", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/filter?filter=enabled&equal=true" } },
+        { "name": "Entity Summary", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/summary?filter=enabled&equal=true" } }
+      ]
+    },
+    {
+      "name": "ERP Special",
+      "item": [
+        {
+          "name": "Entity Mail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{entityId}}\",\n  \"email\": \"customer@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/api/{{mailEntity}}/mail",
+            "description": "Supported by route pattern for invoice, payment, and quote. In the current repo, invoice and payment have explicit mail controllers."
+          }
+        },
+        {
+          "name": "Quote Convert",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/quote/convert/{{entityId}}",
+            "description": "Declared by the quote route pattern."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        { "name": "Download PDF", "request": { "method": "GET", "url": "{{baseUrl}}/download/{{downloadDirectory}}/{{downloadFile}}" } },
+        { "name": "Public File", "request": { "method": "GET", "url": "{{baseUrl}}/public/{{publicSubPath}}/{{publicDirectory}}/{{publicFile}}" } }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,27 @@ const dispatchSettingsData = (datas) => {
   return settingsCategory;
 };
 
+const normalizeSettingsResponse = (data) => {
+  if (data?.success === true && Array.isArray(data.result)) {
+    return {
+      success: true,
+      payload: dispatchSettingsData(data.result),
+    };
+  }
+
+  if (Array.isArray(data?.result) && data.message === 'Collection is Empty') {
+    return {
+      success: true,
+      payload: dispatchSettingsData(data.result),
+    };
+  }
+
+  return {
+    success: false,
+    payload: null,
+  };
+};
+
 export const settingsAction = {
   resetState: () => (dispatch) => {
     dispatch({
@@ -46,16 +67,14 @@ export const settingsAction = {
 
         let data = await request.listAll({ entity });
 
-        if (data.success === true) {
-          const payload = dispatchSettingsData(data.result);
-          window.localStorage.setItem(
-            'settings',
-            JSON.stringify(dispatchSettingsData(data.result))
-          );
+        const normalized = normalizeSettingsResponse(data);
+
+        if (normalized.success === true) {
+          window.localStorage.setItem('settings', JSON.stringify(normalized.payload));
 
           dispatch({
             type: actionTypes.REQUEST_SUCCESS,
-            payload,
+            payload: normalized.payload,
           });
         } else {
           dispatch({
@@ -86,16 +105,14 @@ export const settingsAction = {
 
         let data = await request.listAll({ entity });
 
-        if (data.success === true) {
-          const payload = dispatchSettingsData(data.result);
-          window.localStorage.setItem(
-            'settings',
-            JSON.stringify(dispatchSettingsData(data.result))
-          );
+        const normalized = normalizeSettingsResponse(data);
+
+        if (normalized.success === true) {
+          window.localStorage.setItem('settings', JSON.stringify(normalized.payload));
 
           dispatch({
             type: actionTypes.REQUEST_SUCCESS,
-            payload,
+            payload: normalized.payload,
           });
         } else {
           dispatch({
@@ -117,13 +134,14 @@ export const settingsAction = {
 
       let data = await request.listAll({ entity });
 
-      if (data.success === true) {
-        const payload = dispatchSettingsData(data.result);
-        window.localStorage.setItem('settings', JSON.stringify(dispatchSettingsData(data.result)));
+      const normalized = normalizeSettingsResponse(data);
+
+      if (normalized.success === true) {
+        window.localStorage.setItem('settings', JSON.stringify(normalized.payload));
 
         dispatch({
           type: actionTypes.REQUEST_SUCCESS,
-          payload,
+          payload: normalized.payload,
         });
       } else {
         dispatch({
@@ -151,15 +169,13 @@ export const settingsAction = {
 
         let data = await request.listAll({ entity });
 
-        if (data.success === true) {
-          const payload = dispatchSettingsData(data.result);
-          window.localStorage.setItem(
-            'settings',
-            JSON.stringify(dispatchSettingsData(data.result))
-          );
+        const normalized = normalizeSettingsResponse(data);
+
+        if (normalized.success === true) {
+          window.localStorage.setItem('settings', JSON.stringify(normalized.payload));
           dispatch({
             type: actionTypes.REQUEST_SUCCESS,
-            payload,
+            payload: normalized.payload,
           });
         } else {
           dispatch({

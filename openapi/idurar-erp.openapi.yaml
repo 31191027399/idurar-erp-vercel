@@ -1,0 +1,955 @@
+openapi: 3.0.3
+info:
+  title: IDURAR ERP API
+  version: 1.0.0
+  description: >
+    Compact OpenAPI specification based on the current Express routes in the repo.
+    Generic ERP endpoints use a parameterized `{entity}` path with enums that match the route builder.
+servers:
+  - url: http://localhost:8888
+    description: Local backend
+  - url: https://idurar-erp-vercel.vercel.app
+    description: Vercel deployment
+tags:
+  - name: Auth
+  - name: Admin
+  - name: Settings
+  - name: ERP
+  - name: Files
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    adminId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    settingKey:
+      name: settingKey
+      in: path
+      required: true
+      schema:
+        type: string
+    entity:
+      name: entity
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [client, invoice, payment, paymentmode, quote, taxes]
+    mailEntity:
+      name: entity
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [invoice, payment, quote]
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    items:
+      name: items
+      in: query
+      schema:
+        type: integer
+        default: 10
+    sortBy:
+      name: sortBy
+      in: query
+      schema:
+        type: string
+    sortValue:
+      name: sortValue
+      in: query
+      schema:
+        type: integer
+        enum: [-1, 1]
+    q:
+      name: q
+      in: query
+      schema:
+        type: string
+    fields:
+      name: fields
+      in: query
+      schema:
+        type: string
+      description: Comma-separated field names
+    filter:
+      name: filter
+      in: query
+      schema:
+        type: string
+    equal:
+      name: equal
+      in: query
+      schema:
+        type: string
+    subPath:
+      name: subPath
+      in: path
+      required: true
+      schema:
+        type: string
+    directory:
+      name: directory
+      in: path
+      required: true
+      schema:
+        type: string
+    file:
+      name: file
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        result:
+          nullable: true
+        message:
+          type: string
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pages:
+          type: integer
+        count:
+          type: integer
+    PaginatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        remember:
+          type: boolean
+    ResetPasswordRequest:
+      type: object
+      required: [userId, resetToken, password]
+      properties:
+        userId:
+          type: string
+        resetToken:
+          type: string
+        password:
+          type: string
+    ForgetPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    Admin:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        surname:
+          type: string
+        photo:
+          type: string
+        enabled:
+          type: boolean
+        role:
+          type: string
+          enum: [owner, admin, manager, employee, create_only, read_only]
+    Setting:
+      type: object
+      properties:
+        _id:
+          type: string
+        settingCategory:
+          type: string
+        settingKey:
+          type: string
+        settingValue: {}
+        valueType:
+          type: string
+        isPrivate:
+          type: boolean
+        isCoreSetting:
+          type: boolean
+        enabled:
+          type: boolean
+    Client:
+      type: object
+      required: [name]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        country:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        createdBy:
+          type: string
+        assigned:
+          type: string
+        enabled:
+          type: boolean
+    LineItem:
+      type: object
+      required: [itemName, quantity, price, total]
+      properties:
+        itemName:
+          type: string
+        description:
+          type: string
+        quantity:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+    Quote:
+      type: object
+      properties:
+        _id:
+          type: string
+        createdBy:
+          type: string
+        number:
+          type: integer
+        year:
+          type: integer
+        content:
+          type: string
+        date:
+          type: string
+          format: date-time
+        expiredDate:
+          type: string
+          format: date-time
+        client:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+        taxRate:
+          type: number
+        subTotal:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        discount:
+          type: number
+        status:
+          type: string
+          enum: [draft, pending, sent, accepted, declined, expired, cancelled]
+        notes:
+          type: string
+    Invoice:
+      type: object
+      properties:
+        _id:
+          type: string
+        createdBy:
+          type: string
+        number:
+          type: integer
+        year:
+          type: integer
+        content:
+          type: string
+        recurring:
+          type: string
+          enum: [daily, weekly, monthly, annually, quarter]
+        date:
+          type: string
+          format: date-time
+        expiredDate:
+          type: string
+          format: date-time
+        client:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+        taxRate:
+          type: number
+        subTotal:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        credit:
+          type: number
+        discount:
+          type: number
+        paymentStatus:
+          type: string
+          enum: [unpaid, paid, partially]
+        approved:
+          type: boolean
+        status:
+          type: string
+          enum: [draft, pending, sent, refunded, cancelled, on hold]
+        notes:
+          type: string
+    Payment:
+      type: object
+      properties:
+        _id:
+          type: string
+        createdBy:
+          type: string
+        number:
+          type: integer
+        client:
+          type: string
+        invoice:
+          type: string
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+        currency:
+          type: string
+        ref:
+          type: string
+        description:
+          type: string
+    PaymentMode:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        isDefault:
+          type: boolean
+        enabled:
+          type: boolean
+    Taxes:
+      type: object
+      properties:
+        _id:
+          type: string
+        taxName:
+          type: string
+        taxValue:
+          type: string
+        isDefault:
+          type: boolean
+        enabled:
+          type: boolean
+    MaintenanceSeedRequest:
+      type: object
+      properties:
+        clean:
+          type: boolean
+          default: true
+        counts:
+          type: object
+          properties:
+            clients:
+              type: integer
+              default: 20
+            quotes:
+              type: integer
+              default: 20
+            invoices:
+              type: integer
+              default: 20
+            payments:
+              type: integer
+              default: 20
+    MailRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+paths:
+  /api/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /api/forgetpassword:
+    post:
+      tags: [Auth]
+      summary: Send password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPasswordRequest'
+      responses:
+        '200':
+          description: Reset email triggered
+  /api/resetpassword:
+    post:
+      tags: [Auth]
+      summary: Reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset success
+  /api/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout success
+  /api/admin/create:
+    post:
+      tags: [Admin]
+      summary: Create admin
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '200':
+          description: Admin created
+  /api/admin/read/{id}:
+    get:
+      tags: [Admin]
+      summary: Read admin
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/adminId' }]
+      responses:
+        '200':
+          description: Admin found
+  /api/admin/update/{id}:
+    patch:
+      tags: [Admin]
+      summary: Update admin
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/adminId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '200':
+          description: Admin updated
+  /api/admin/delete/{id}:
+    delete:
+      tags: [Admin]
+      summary: Delete admin
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/adminId' }]
+      responses:
+        '200':
+          description: Admin deleted
+  /api/admin/list:
+    get:
+      tags: [Admin]
+      summary: List admins
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/page' }
+        - { $ref: '#/components/parameters/items' }
+        - { $ref: '#/components/parameters/sortBy' }
+        - { $ref: '#/components/parameters/sortValue' }
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/fields' }
+      responses:
+        '200':
+          description: Admin list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+  /api/admin/search:
+    get:
+      tags: [Admin]
+      summary: Search admins
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/fields' }
+      responses:
+        '200':
+          description: Search result
+  /api/admin/password-update/{id}:
+    patch:
+      tags: [Admin]
+      summary: Update another admin password
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/adminId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Password updated
+  /api/admin/profile/password:
+    patch:
+      tags: [Admin]
+      summary: Update current profile password
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Profile password updated
+  /api/admin/profile/update:
+    patch:
+      tags: [Admin]
+      summary: Update current profile with optional photo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                surname:
+                  type: string
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Profile updated
+  /api/admin/maintenance/clean:
+    post:
+      tags: [Admin]
+      summary: Clean ERP data
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Clean success
+  /api/admin/maintenance/seed:
+    post:
+      tags: [Admin]
+      summary: Seed ERP demo data
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSeedRequest'
+      responses:
+        '200':
+          description: Seed success
+  /api/setting/create:
+    post:
+      tags: [Settings]
+      summary: Create setting
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      responses:
+        '200':
+          description: Setting created
+  /api/setting/read/{id}:
+    get:
+      tags: [Settings]
+      summary: Read setting
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/id' }]
+      responses:
+        '200':
+          description: Setting found
+  /api/setting/update/{id}:
+    patch:
+      tags: [Settings]
+      summary: Update setting
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      responses:
+        '200':
+          description: Setting updated
+  /api/setting/search:
+    get:
+      tags: [Settings]
+      summary: Search settings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/fields' }
+      responses:
+        '200':
+          description: Search result
+  /api/setting/list:
+    get:
+      tags: [Settings]
+      summary: List settings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/page' }
+        - { $ref: '#/components/parameters/items' }
+        - { $ref: '#/components/parameters/sortBy' }
+        - { $ref: '#/components/parameters/sortValue' }
+      responses:
+        '200':
+          description: Settings list
+  /api/setting/listAll:
+    get:
+      tags: [Settings]
+      summary: List all settings
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: All settings
+  /api/setting/filter:
+    get:
+      tags: [Settings]
+      summary: Filter settings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/filter' }
+        - { $ref: '#/components/parameters/equal' }
+      responses:
+        '200':
+          description: Filtered settings
+  /api/setting/readBySettingKey/{settingKey}:
+    get:
+      tags: [Settings]
+      summary: Read setting by key
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/settingKey' }]
+      responses:
+        '200':
+          description: Setting found
+  /api/setting/listBySettingKey:
+    get:
+      tags: [Settings]
+      summary: List settings by key logic
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Settings returned
+  /api/setting/updateBySettingKey/{settingKey}:
+    patch:
+      tags: [Settings]
+      summary: Update setting by key
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/settingKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settingValue: {}
+      responses:
+        '200':
+          description: Setting updated
+  /api/setting/upload/{settingKey}:
+    patch:
+      tags: [Settings]
+      summary: Upload setting value file
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/settingKey' }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                settingValue:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Setting file uploaded
+  /api/setting/updateManySetting:
+    patch:
+      tags: [Settings]
+      summary: Bulk update settings
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Settings updated
+  /api/{entity}/create:
+    post:
+      tags: [ERP]
+      summary: Create ERP entity record
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/entity' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Body depends on the selected entity schema
+      responses:
+        '200':
+          description: Entity created
+  /api/{entity}/read/{id}:
+    get:
+      tags: [ERP]
+      summary: Read ERP entity record
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/id' }
+      responses:
+        '200':
+          description: Entity found
+  /api/{entity}/update/{id}:
+    patch:
+      tags: [ERP]
+      summary: Update ERP entity record
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/id' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Entity updated
+  /api/{entity}/delete/{id}:
+    delete:
+      tags: [ERP]
+      summary: Delete ERP entity record
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/id' }
+      responses:
+        '200':
+          description: Entity deleted
+  /api/{entity}/search:
+    get:
+      tags: [ERP]
+      summary: Search ERP entity records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/fields' }
+      responses:
+        '200':
+          description: Search result
+  /api/{entity}/list:
+    get:
+      tags: [ERP]
+      summary: List ERP entity records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/page' }
+        - { $ref: '#/components/parameters/items' }
+        - { $ref: '#/components/parameters/sortBy' }
+        - { $ref: '#/components/parameters/sortValue' }
+        - { $ref: '#/components/parameters/q' }
+        - { $ref: '#/components/parameters/fields' }
+        - { $ref: '#/components/parameters/filter' }
+        - { $ref: '#/components/parameters/equal' }
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+  /api/{entity}/listAll:
+    get:
+      tags: [ERP]
+      summary: List all ERP entity records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+      responses:
+        '200':
+          description: Full list
+  /api/{entity}/filter:
+    get:
+      tags: [ERP]
+      summary: Filter ERP entity records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/filter' }
+        - { $ref: '#/components/parameters/equal' }
+      responses:
+        '200':
+          description: Filter result
+  /api/{entity}/summary:
+    get:
+      tags: [ERP]
+      summary: Count ERP entity records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/entity' }
+        - { $ref: '#/components/parameters/filter' }
+        - { $ref: '#/components/parameters/equal' }
+      responses:
+        '200':
+          description: Summary result
+  /api/{entity}/mail:
+    post:
+      tags: [ERP]
+      summary: Send entity mail
+      description: Declared by router for invoice, payment, and quote.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/mailEntity' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailRequest'
+      responses:
+        '200':
+          description: Mail request processed
+  /api/quote/convert/{id}:
+    get:
+      tags: [ERP]
+      summary: Convert quote
+      description: Declared by the route builder for quotes.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/id' }
+      responses:
+        '200':
+          description: Quote converted
+  /download/{directory}/{file}:
+    get:
+      tags: [Files]
+      summary: Download generated PDF
+      parameters:
+        - { $ref: '#/components/parameters/directory' }
+        - { $ref: '#/components/parameters/file' }
+      responses:
+        '200':
+          description: File download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /public/{subPath}/{directory}/{file}:
+    get:
+      tags: [Files]
+      summary: Get public file
+      parameters:
+        - { $ref: '#/components/parameters/subPath' }
+        - { $ref: '#/components/parameters/directory' }
+        - { $ref: '#/components/parameters/file' }
+      responses:
+        '200':
+          description: Public file or asset
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
