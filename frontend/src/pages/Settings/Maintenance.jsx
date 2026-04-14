@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert, Button, Card, Form, InputNumber, Space, Typography, message } from 'antd';
 import { request } from '@/request';
-import useLanguage from '@/locale/useLanguage';
 import { useDispatch } from 'react-redux';
 import { settingsAction } from '@/redux/settings/actions';
 
@@ -9,7 +8,6 @@ const { Paragraph, Text, Title } = Typography;
 const DEFAULT_COUNTS = { clients: 20, quotes: 20, invoices: 20, payments: 20 };
 
 export default function Maintenance() {
-  const translate = useLanguage();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [loadingAction, setLoadingAction] = useState('');
@@ -22,8 +20,8 @@ export default function Maintenance() {
   const runAction = async ({ type, entity, payload, successMessage }) => {
     const confirmed = window.confirm(
       type === 'clean'
-        ? translate('maintenance_clean_confirm')
-        : translate('maintenance_seed_confirm')
+        ? 'This will permanently remove current ERP demo data. Do you want to continue?'
+        : 'This will wipe current ERP data and rebuild a linked demo dataset. Do you want to continue?'
     );
 
     if (!confirmed) return;
@@ -43,7 +41,7 @@ export default function Maintenance() {
       return;
     }
 
-    message.error(data?.message || translate('maintenance_action_failed'));
+    message.error(data?.message || 'Maintenance action failed.');
   };
 
   const getSeedCounts = () => ({
@@ -59,9 +57,9 @@ export default function Maintenance() {
             Demo ERP Maintenance
           </Title>
           <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-            Clean existing ERP records or reseed a linked demo dataset without replacing the
-            current admin users. Client, accepted quote, invoice, and payment counts default to 20
-            records each and can be adjusted before seeding.
+            Clean existing ERP records or reseed a linked demo dataset. Client, accepted quote,
+            invoice, and payment counts default to 20 records each and can be adjusted before
+            seeding.
           </Paragraph>
         </div>
 
@@ -69,7 +67,7 @@ export default function Maintenance() {
           type="warning"
           showIcon
           message="Owner-only maintenance actions"
-          description="Cleaning removes current customers, quotes, invoices, payments, taxes, payment modes, and settings. Seeding preserves admin accounts, then rebuilds related ERP demo records that stay linked together."
+          description="Cleaning removes current customers, quotes, invoices, payments, taxes, payment modes, and settings. Seeding rebuilds related ERP demo records that stay linked together."
         />
 
         <Form form={form} layout="vertical" initialValues={DEFAULT_COUNTS}>
@@ -89,7 +87,7 @@ export default function Maintenance() {
           </Space>
           <Paragraph type="secondary" style={{ marginTop: 16, marginBottom: 0 }}>
             Seeding creates customers, accepted quotes, invoices, and linked payments that follow
-            the same ERP relationships. Current admin users stay unchanged.
+            the same ERP relationships.
           </Paragraph>
         </Form>
 
@@ -102,11 +100,11 @@ export default function Maintenance() {
                 type: 'clean',
                 entity: 'admin/maintenance/clean',
                 payload: {},
-                successMessage: translate('maintenance_clean_success'),
+                successMessage: 'ERP data cleaned successfully.',
               })
             }
           >
-            {translate('maintenance_clean_action')}
+            Clean ERP Data
           </Button>
 
           <Button
@@ -121,7 +119,7 @@ export default function Maintenance() {
               })
             }
           >
-            Seed Demo Data
+            Clean And Seed Demo Data
           </Button>
         </Space>
 
@@ -132,7 +130,6 @@ export default function Maintenance() {
             message="Demo data ready"
             description={
               <Space direction="vertical" size="small">
-                <Text>Owner preserved: {seedResult.owner.email}</Text>
                 <Text>
                   Seeded {seedResult.summary.clients} clients, {seedResult.summary.quotes}{' '}
                   accepted quotes, {seedResult.summary.invoices} invoices, and{' '}
