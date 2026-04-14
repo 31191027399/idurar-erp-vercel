@@ -106,26 +106,34 @@ export const resetPassword =
   };
 
 export const logout = () => async (dispatch) => {
+  const result = window.localStorage.getItem('auth');
+  const tmpAuth = result ? JSON.parse(result) : null;
+  const settings = window.localStorage.getItem('settings');
+  const tmpSettings = settings ? JSON.parse(settings) : null;
+  const token = tmpAuth?.current?.token;
+
   dispatch({
     type: actionTypes.LOGOUT_SUCCESS,
   });
-  const result = window.localStorage.getItem('auth');
-  const tmpAuth = JSON.parse(result);
-  const settings = window.localStorage.getItem('settings');
-  const tmpSettings = JSON.parse(settings);
   window.localStorage.removeItem('auth');
   window.localStorage.removeItem('settings');
   window.localStorage.setItem('isLogout', JSON.stringify({ isLogout: true }));
-  const data = await authService.logout();
-  if (data.success === false) {
+  const data = await authService.logout({ token });
+  const canIgnoreLogoutError = data?.jwtExpired === true || data?.message?.toLowerCase?.().includes('authorization denied');
+
+  if (data.success === false && !canIgnoreLogoutError) {
     const auth_state = {
-      current: tmpAuth,
+      current: tmpAuth?.current || {},
       isLoggedIn: true,
       isLoading: false,
       isSuccess: true,
     };
-    window.localStorage.setItem('auth', JSON.stringify(auth_state));
-    window.localStorage.setItem('settings', JSON.stringify(tmpSettings));
+    if (tmpAuth) {
+      window.localStorage.setItem('auth', JSON.stringify(auth_state));
+    }
+    if (tmpSettings) {
+      window.localStorage.setItem('settings', JSON.stringify(tmpSettings));
+    }
     window.localStorage.removeItem('isLogout');
     dispatch({
       type: actionTypes.LOGOUT_FAILED,

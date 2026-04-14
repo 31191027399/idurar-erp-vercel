@@ -57,7 +57,12 @@ const isValidAuthToken = async (req, res, next, { userModel, jwtSecret = 'JWT_SE
       next();
     }
   } catch (error) {
-    return res.status(500).json({
+    const isJwtError =
+      error?.name === 'TokenExpiredError' ||
+      error?.name === 'JsonWebTokenError' ||
+      error?.name === 'NotBeforeError';
+
+    return res.status(isJwtError ? 401 : 500).json({
       success: false,
       result: null,
       message: error.message,

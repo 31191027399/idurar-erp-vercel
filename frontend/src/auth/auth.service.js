@@ -82,11 +82,20 @@ export const resetPassword = async ({ resetPasswordData }) => {
     return errorHandler(error);
   }
 };
-export const logout = async () => {
+export const logout = async ({ token } = {}) => {
   axios.defaults.withCredentials = true;
   try {
-    // window.localStorage.clear();
-    const response = await axios.post(API_BASE_URL + `logout?timestamp=${new Date().getTime()}`);
+    const response = await axios.post(
+      API_BASE_URL + `logout?timestamp=${new Date().getTime()}`,
+      {},
+      token
+        ? {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        : undefined
+    );
     const { status, data } = response;
 
     successHandler(
@@ -98,6 +107,22 @@ export const logout = async () => {
     );
     return data;
   } catch (error) {
+    const response = error?.response;
+    const isExpectedLogoutAuthError =
+      response?.status === 401 ||
+      response?.data?.jwtExpired === true ||
+      response?.data?.error?.name === 'JsonWebTokenError' ||
+      response?.data?.error?.name === 'TokenExpiredError';
+
+    if (isExpectedLogoutAuthError) {
+      return {
+        success: false,
+        result: null,
+        message: response?.data?.message || 'Logout token is no longer valid.',
+        jwtExpired: true,
+      };
+    }
+
     return errorHandler(error);
   }
 };
