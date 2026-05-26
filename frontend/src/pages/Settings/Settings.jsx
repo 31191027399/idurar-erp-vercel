@@ -3,6 +3,7 @@ import {
   CreditCardOutlined,
   DollarOutlined,
   FileImageOutlined,
+  KeyOutlined,
   TrophyOutlined,
   ToolOutlined,
 } from '@ant-design/icons';
@@ -15,6 +16,7 @@ import CompanySettings from './CompanySettings';
 import FinanceSettings from './FinanceSettings';
 import MoneyFormatSettings from './MoneyFormatSettings';
 import Maintenance from './Maintenance';
+import ApiKeys from './ApiKeys';
 
 import useLanguage from '@/locale/useLanguage';
 import { useParams } from 'react-router-dom';
@@ -58,6 +60,12 @@ export default function Settings() {
       label: translate('maintenance_tools'),
       icon: <ToolOutlined />,
       children: <Maintenance />,
+    },
+    {
+      key: 'api_keys',
+      label: 'API Keys',
+      icon: <KeyOutlined />,
+      children: <ApiKeys />,
     },
   ];
 

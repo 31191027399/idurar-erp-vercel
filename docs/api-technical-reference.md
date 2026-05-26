@@ -12,6 +12,7 @@ This document is based on the current backend implementation under [`backend/src
 
 - Login returns a JWT in `result.token`.
 - Protected routes expect `Authorization: Bearer <token>`.
+- Protected routes also accept API keys via `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`.
 - All `/api` routes except `login`, `forgetpassword`, and `resetpassword` are protected.
 
 ## Common Response Shape
@@ -64,6 +65,16 @@ Used mainly by `list`, `search`, `filter`, and `summary`.
 | `POST` | `/api/forgetpassword` | No | Generate reset token and send reset email | `{ "email": "admin@admin.com" }` |
 | `POST` | `/api/resetpassword` | No | Reset password using reset token | `{ "userId": "...", "resetToken": "...", "password": "new-password" }` |
 | `POST` | `/api/logout` | Yes | Logout current token or all tokens if token missing | No body required |
+
+## API Key Endpoints
+
+All of these require an already authenticated admin session and are intended for external tool integrations.
+
+| Method | Path | Auth | Purpose | Typical body |
+| --- | --- | --- | --- | --- |
+| `POST` | `/api/admin/api-key/create` | Yes | Create a new API key for the current admin | `{ "name": "Zapier", "expiresInDays": 365, "scopes": ["invoice:read"] }` |
+| `GET` | `/api/admin/api-key/list` | Yes | List API keys for the current admin | No body |
+| `PATCH` | `/api/admin/api-key/revoke/:id` | Yes | Revoke an API key | No body |
 
 ## Admin Endpoints
 

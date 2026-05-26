@@ -20,6 +20,9 @@ router.route('/admin/search').get(catchErrors(adminController.search));
 router.route('/admin/password-update/:id').patch(catchErrors(adminController.updatePassword));
 router.route('/admin/maintenance/clean').post(catchErrors(adminController.maintenance.clean));
 router.route('/admin/maintenance/seed').post(catchErrors(adminController.maintenance.seed));
+router.route('/admin/api-key/create').post(catchErrors(adminController.apiKey.create));
+router.route('/admin/api-key/list').get(catchErrors(adminController.apiKey.list));
+router.route('/admin/api-key/revoke/:id').patch(catchErrors(adminController.apiKey.revoke));
 
 //_______________________________ Admin Profile _______________________________
 
