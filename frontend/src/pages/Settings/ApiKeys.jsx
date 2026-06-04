@@ -30,19 +30,41 @@ const maskPrefix = (prefix) => {
   return `${prefix}...`;
 };
 
+const onlyVisibleApiKeys = (keys) => keys.filter((key) => !key.revoked);
+
 export default function ApiKeys() {
   const [form] = Form.useForm();
+  const [integrationForm] = Form.useForm();
   const [apiKeys, setApiKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [integrationLoading, setIntegrationLoading] = useState(true);
+  const [integrationSaving, setIntegrationSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [revokingId, setRevokingId] = useState('');
   const [latestKey, setLatestKey] = useState(null);
+
+  const loadIntegrationSettings = async () => {
+    setIntegrationLoading(true);
+    const data = await request.get({ entity: 'admin/integration-settings' });
+
+    if (data?.success) {
+      integrationForm.setFieldsValue({
+        serviceName: data.result?.serviceName || '',
+        baseUrl: data.result?.baseUrl || '',
+        apiKey: data.result?.apiKey || '',
+      });
+    } else {
+      message.error(data?.message || 'Failed to load integration settings.');
+    }
+
+    setIntegrationLoading(false);
+  };
 
   const loadApiKeys = async () => {
     setLoading(true);
     const data = await request.get({ entity: 'admin/api-key/list' });
     if (data?.success) {
-      setApiKeys(Array.isArray(data.result) ? data.result : []);
+      setApiKeys(Array.isArray(data.result) ? onlyVisibleApiKeys(data.result) : []);
     } else {
       message.error(data?.message || 'Failed to load API keys.');
     }
@@ -50,6 +72,7 @@ export default function ApiKeys() {
   };
 
   useEffect(() => {
+    loadIntegrationSettings();
     loadApiKeys();
   }, []);
 
@@ -104,6 +127,31 @@ export default function ApiKeys() {
     message.error(data?.message || 'Failed to create API key.');
   };
 
+  const handleIntegrationSave = async (values) => {
+    setIntegrationSaving(true);
+    const data = await request.patch({
+      entity: 'admin/integration-settings',
+      jsonData: {
+        serviceName: values.serviceName?.trim?.() || '',
+        baseUrl: values.baseUrl?.trim?.() || '',
+        apiKey: values.apiKey || '',
+      },
+    });
+    setIntegrationSaving(false);
+
+    if (data?.success) {
+      integrationForm.setFieldsValue({
+        serviceName: data.result?.serviceName || '',
+        baseUrl: data.result?.baseUrl || '',
+        apiKey: data.result?.apiKey || '',
+      });
+      message.success('Integration settings saved.');
+      return;
+    }
+
+    message.error(data?.message || 'Failed to save integration settings.');
+  };
+
   const handleRevoke = async (id) => {
     setRevokingId(id);
     const data = await request.patch({
@@ -113,9 +161,7 @@ export default function ApiKeys() {
     setRevokingId('');
 
     if (data?.success) {
-      setApiKeys((currentKeys) =>
-        currentKeys.map((key) => (key._id === id ? data.result : key))
-      );
+      setApiKeys((currentKeys) => currentKeys.filter((key) => key._id !== id));
       message.success('API key revoked.');
       return;
     }
@@ -130,7 +176,8 @@ export default function ApiKeys() {
           API Keys
         </Title>
         <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-          Create long-lived credentials for external tools. Protected API routes now accept either
+          Manage outbound third-party credentials and create long-lived credentials for external
+          tools. Protected API routes now accept either
           <Text code style={{ marginInline: 4 }}>
             Authorization: Bearer &lt;api_key&gt;
           </Text>
@@ -186,6 +233,66 @@ export default function ApiKeys() {
         />
       )}
 
+      <Card
+        title="3rd-Party Integration"
+        extra={
+          <Button icon={<ReloadOutlined />} onClick={loadIntegrationSettings} loading={integrationLoading}>
+            Refresh
+          </Button>
+        }
+      >
+        <Form form={integrationForm} layout="vertical" onFinish={handleIntegrationSave}>
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Alert
+              type="info"
+              showIcon
+              message="Store credentials for outbound integrations"
+              description="Use this section to save the service details and API key required when this ERP connects to another platform."
+            />
+
+            <Form.Item
+              label="Service Name"
+              name="serviceName"
+              rules={[{ required: true, message: 'Please enter the 3rd-party service name.' }]}
+            >
+              <Input placeholder="Stripe, Zapier, Slack, Custom ERP API" />
+            </Form.Item>
+
+            <Form.Item
+              label="Base URL"
+              name="baseUrl"
+              rules={[
+                { required: true, message: 'Please enter the integration base URL.' },
+                { type: 'url', message: 'Please enter a valid URL.' },
+              ]}
+            >
+              <Input placeholder="https://api.example.com" />
+            </Form.Item>
+
+            <Form.Item
+              label="API Key"
+              name="apiKey"
+              rules={[{ required: true, message: 'Please enter the API key.' }]}
+              extra="This value is stored on the server and only visible to authenticated admins on this screen."
+            >
+              <Input.Password
+                placeholder="Paste the third-party API key"
+                autoComplete="new-password"
+              />
+            </Form.Item>
+
+            <Space wrap>
+              <Button type="primary" htmlType="submit" loading={integrationSaving}>
+                Save Integration Settings
+              </Button>
+              <Button onClick={() => integrationForm.resetFields()} disabled={integrationLoading}>
+                Reset
+              </Button>
+            </Space>
+          </Space>
+        </Form>
+      </Card>
+
       <Card>
         <Form
           form={form}
@@ -194,6 +301,13 @@ export default function ApiKeys() {
           initialValues={{ expiresInDays: 365 }}
         >
           <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Alert
+              type="warning"
+              showIcon
+              message="Generated API keys are for inbound access"
+              description="Create a generated key below when another system needs to call this ERP's protected API routes."
+            />
+
             <Form.Item
               label="Key Name"
               name="name"
@@ -242,7 +356,6 @@ export default function ApiKeys() {
           dataSource={apiKeys}
           renderItem={(item) => {
             const isExpired = item.expiresAt && new Date(item.expiresAt) < new Date();
-            const isRevoked = Boolean(item.revoked);
 
             return (
               <List.Item
@@ -254,32 +367,26 @@ export default function ApiKeys() {
                   >
                     Copy Prefix
                   </Button>,
-                  isRevoked ? (
-                    <Tag key="revoked" color="red" style={{ marginInlineEnd: 0 }}>
-                      Revoked
-                    </Tag>
-                  ) : (
-                    <Popconfirm
-                      key="revoke"
-                      title="Revoke API key?"
-                      description="External tools using this key will stop working immediately."
-                      onConfirm={() => handleRevoke(item._id)}
-                      okText="Revoke"
-                      cancelText="Cancel"
-                    >
-                      <Button danger icon={<StopOutlined />} loading={revokingId === item._id}>
-                        Revoke
-                      </Button>
-                    </Popconfirm>
-                  ),
+                  <Popconfirm
+                    key="revoke"
+                    title="Revoke API key?"
+                    description="External tools using this key will stop working immediately."
+                    onConfirm={() => handleRevoke(item._id)}
+                    okText="Revoke"
+                    cancelText="Cancel"
+                  >
+                    <Button danger icon={<StopOutlined />} loading={revokingId === item._id}>
+                      Revoke
+                    </Button>
+                  </Popconfirm>,
                 ]}
               >
                 <List.Item.Meta
                   title={
                     <Space wrap>
                       <Text strong>{item.name}</Text>
-                      <Tag color={isRevoked ? 'red' : isExpired ? 'orange' : 'green'}>
-                        {isRevoked ? 'Revoked' : isExpired ? 'Expired' : 'Active'}
+                      <Tag color={isExpired ? 'orange' : 'green'}>
+                        {isExpired ? 'Expired' : 'Active'}
                       </Tag>
                     </Space>
                   }

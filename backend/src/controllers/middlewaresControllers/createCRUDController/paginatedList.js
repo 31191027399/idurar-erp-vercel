@@ -4,6 +4,15 @@ const paginatedList = async (Model, req, res) => {
   const skip = page * limit - limit;
 
   const { sortBy = 'enabled', sortValue = -1, filter, equal } = req.query;
+  const normalizedSortValue = Number(sortValue);
+
+  if (![1, -1].includes(normalizedSortValue)) {
+    return res.status(400).json({
+      success: false,
+      result: [],
+      message: 'Invalid sort value. Use 1 for ascending or -1 for descending.',
+    });
+  }
 
   const fieldsArray = req.query.fields ? req.query.fields.split(',') : [];
 
@@ -36,7 +45,7 @@ const paginatedList = async (Model, req, res) => {
   })
     .skip(skip)
     .limit(limit)
-    .sort({ [sortBy]: sortValue })
+    .sort({ [sortBy]: normalizedSortValue })
     .populate()
     .exec();
 

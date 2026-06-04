@@ -1,24 +1,54 @@
 {
   "info": {
     "name": "IDURAR ERP API",
-    "_postman_id": "0a7f2f40-cf1e-4f5a-8c86-14ccdc4e07c9",
-    "description": "Postman collection based on the current IDURAR ERP backend routes in backend/src/routes. Use the collection variables to switch entities and ids.",
+    "description": "Concrete endpoint collection for IDURAR ERP. ERP routes use explicit entity paths such as /api/client/search and /api/invoice/search.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8888" },
-    { "key": "token", "value": "" },
-    { "key": "adminId", "value": "" },
-    { "key": "settingId", "value": "" },
-    { "key": "settingKey", "value": "company_name" },
-    { "key": "entity", "value": "client" },
-    { "key": "entityId", "value": "" },
-    { "key": "mailEntity", "value": "invoice" },
-    { "key": "publicSubPath", "value": "images" },
-    { "key": "publicDirectory", "value": "logo" },
-    { "key": "publicFile", "value": "sample.png" },
-    { "key": "downloadDirectory", "value": "invoice" },
-    { "key": "downloadFile", "value": "invoice-RECORD_ID.pdf" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8888"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "invoiceId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "paymentmodeId",
+      "value": ""
+    },
+    {
+      "key": "quoteId",
+      "value": ""
+    },
+    {
+      "key": "taxesId",
+      "value": ""
+    },
+    {
+      "key": "settingId",
+      "value": ""
+    },
+    {
+      "key": "apiKeyId",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -28,45 +58,109 @@
           "name": "Login",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [],
+            "description": "Authenticate an admin user and capture the returned JWT as {{token}}.",
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"admin123\",\n  \"remember\": true\n}"
-            },
-            "url": "{{baseUrl}}/api/login",
-            "description": "Returns JWT at result.token."
+              "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"admin123\",\n  \"remember\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
           "name": "Forget Password",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [],
+            "description": "Send password reset instructions.",
+            "url": {
+              "raw": "{{baseUrl}}/api/forgetpassword",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forgetpassword"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@admin.com\"\n}"
-            },
-            "url": "{{baseUrl}}/api/forgetpassword"
+              "raw": "{\n  \"email\": \"admin@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
           "name": "Reset Password",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [],
+            "description": "Reset an admin password with a reset token.",
+            "url": {
+              "raw": "{{baseUrl}}/api/resetpassword",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resetpassword"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"{{adminId}}\",\n  \"resetToken\": \"RESET_TOKEN\",\n  \"password\": \"new-password\"\n}"
-            },
-            "url": "{{baseUrl}}/api/resetpassword"
+              "raw": "{\n  \"userId\": \"{{adminId}}\",\n  \"resetToken\": \"{{resetToken}}\",\n  \"password\": \"new-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
           "name": "Logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": "{{baseUrl}}/api/logout"
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Logout the current authenticated session.",
+            "url": {
+              "raw": "{{baseUrl}}/api/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "logout"
+              ],
+              "query": []
+            }
           }
         }
       ]
@@ -79,97 +173,556 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
+            "description": "Create an admin user.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "create"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"manager@example.com\",\n  \"name\": \"Demo\",\n  \"surname\": \"Manager\",\n  \"role\": \"manager\",\n  \"enabled\": true,\n  \"password\": \"manager123\"\n}"
-            },
-            "url": "{{baseUrl}}/api/admin/create"
+              "raw": "{\n  \"email\": \"new-admin@example.com\",\n  \"name\": \"New\",\n  \"surname\": \"Admin\",\n  \"role\": \"admin\",\n  \"enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Read Admin", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/read/{{adminId}}" } },
+        {
+          "name": "Read Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one admin by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/read/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "read",
+                "{{adminId}}"
+              ],
+              "query": []
+            }
+          }
+        },
         {
           "name": "Update Admin",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated\",\n  \"surname\": \"User\",\n  \"role\": \"employee\",\n  \"enabled\": true\n}" },
-            "url": "{{baseUrl}}/api/admin/update/{{adminId}}"
+            "description": "Update one admin by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/update/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "update",
+                "{{adminId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated\",\n  \"surname\": \"Admin\",\n  \"enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Delete Admin", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/delete/{{adminId}}" } },
-        { "name": "List Admins", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/list?page=1&items=10&sortBy=enabled&sortValue=-1" } },
-        { "name": "Search Admins", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/admin/search?q=admin&fields=name,email" } },
+        {
+          "name": "Delete Admin",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one admin by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/delete/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "delete",
+                "{{adminId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "List Admins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List admins with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Admins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search admins by concrete admin fields.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/search?q=sample&fields=name,email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "name,email"
+                }
+              ]
+            }
+          }
+        },
         {
           "name": "Update Admin Password",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"password\": \"new-password\"\n}" },
-            "url": "{{baseUrl}}/api/admin/password-update/{{adminId}}"
+            "description": "Update another admin password by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/password-update/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "password-update",
+                "{{adminId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"new-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
-          "name": "Update Profile Password",
+          "name": "Update Current Profile Password",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"admin123\",\n  \"newPassword\": \"new-password\"\n}" },
-            "url": "{{baseUrl}}/api/admin/profile/password"
+            "description": "Update password for the authenticated admin.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/profile/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "profile",
+                "password"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"admin123\",\n  \"password\": \"new-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
-          "name": "Update Profile",
+          "name": "Update Current Profile",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update authenticated admin profile and optionally upload a photo.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/profile/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "profile",
+                "update"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "name", "value": "Owner", "type": "text" },
-                { "key": "surname", "value": "Updated", "type": "text" },
-                { "key": "photo", "type": "file", "src": "" }
+                {
+                  "key": "name",
+                  "value": "IDURAR",
+                  "type": "text"
+                },
+                {
+                  "key": "surname",
+                  "value": "Admin",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                }
               ]
+            }
+          }
+        },
+        {
+          "name": "Clean Demo Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Clean ERP demo data.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/maintenance/clean",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "maintenance",
+                "clean"
+              ],
+              "query": []
             },
-            "url": "{{baseUrl}}/api/admin/profile/update"
-          }
-        },
-        {
-          "name": "Maintenance Clean",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{}" },
-            "url": "{{baseUrl}}/api/admin/maintenance/clean"
-          }
-        },
-        {
-          "name": "Maintenance Seed",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"clean\": true,\n  \"counts\": {\n    \"clients\": 20,\n    \"quotes\": 20,\n    \"invoices\": 20,\n    \"payments\": 20\n  }\n}"
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Seed Demo Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Seed ERP demo data.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/maintenance/seed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "maintenance",
+                "seed"
+              ],
+              "query": []
             },
-            "url": "{{baseUrl}}/api/admin/maintenance/seed"
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clean\": true,\n  \"counts\": {\n    \"clients\": 20,\n    \"quotes\": 20,\n    \"invoices\": 20,\n    \"payments\": 20\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin API Keys",
+      "item": [
+        {
+          "name": "Create Inbound API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create a key external systems can use to call protected ERP APIs.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/api-key/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "api-key",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"External System Production\",\n  \"scopes\": [\n    \"client:read\",\n    \"invoice:read\"\n  ],\n  \"expiresInDays\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Inbound API Keys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List API keys for the current admin.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/api-key/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "api-key",
+                "list"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Revoke Inbound API Key",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Revoke one API key by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/api-key/revoke/{{apiKeyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "api-key",
+                "revoke",
+                "{{apiKeyId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integration Settings",
+      "item": [
+        {
+          "name": "Read Third-Party Integration Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read outbound third-party integration settings.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/integration-settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "integration-settings"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Third-Party Integration Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Save outbound third-party integration credentials.",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/integration-settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "integration-settings"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceName\": \"Example API\",\n  \"baseUrl\": \"https://api.example.com\",\n  \"apiKey\": \"external-service-api-key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]
@@ -182,54 +735,354 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"settingCategory\": \"company\",\n  \"settingKey\": \"company_name\",\n  \"settingValue\": \"IDURAR Demo Company\",\n  \"valueType\": \"String\"\n}" },
-            "url": "{{baseUrl}}/api/setting/create"
+            "description": "Create a setting record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settingCategory\": \"app_settings\",\n  \"settingKey\": \"sample_setting\",\n  \"settingValue\": \"sample\",\n  \"valueType\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Read Setting", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/read/{{settingId}}" } },
+        {
+          "name": "Read Setting",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one setting by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/read/{{settingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "read",
+                "{{settingId}}"
+              ],
+              "query": []
+            }
+          }
+        },
         {
           "name": "Update Setting",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"settingValue\": \"Updated Company\"\n}" },
-            "url": "{{baseUrl}}/api/setting/update/{{settingId}}"
+            "description": "Update one setting by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/update/{{settingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "update",
+                "{{settingId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settingValue\": \"updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Search Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/search?q=company&fields=settingKey,settingCategory" } },
-        { "name": "List Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/list?page=1&items=10" } },
-        { "name": "List All Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/listAll" } },
-        { "name": "Filter Settings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/filter?filter=settingCategory&equal=company" } },
-        { "name": "Read By Setting Key", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/readBySettingKey/{{settingKey}}" } },
-        { "name": "List By Setting Key", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/setting/listBySettingKey" } },
         {
-          "name": "Update By Setting Key",
+          "name": "Search Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search settings by concrete setting fields.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/search?q=date&fields=settingKey,settingCategory",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "date"
+                },
+                {
+                  "key": "fields",
+                  "value": "settingKey,settingCategory"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List settings with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Public Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all public settings.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter settings by concrete field and exact value.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/filter?filter=settingCategory&equal=app_settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "settingCategory"
+                },
+                {
+                  "key": "equal",
+                  "value": "app_settings"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Read Setting By Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read a setting by its settingKey.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/readBySettingKey/idurar_app_date_format",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "readBySettingKey",
+                "idurar_app_date_format"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "List By Setting Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List settings by the backend setting-key logic.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/listBySettingKey",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "listBySettingKey"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Setting By Key",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"settingValue\": \"Updated by key\"\n}" },
-            "url": "{{baseUrl}}/api/setting/updateBySettingKey/{{settingKey}}"
+            "description": "Update a setting by settingKey.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/updateBySettingKey/idurar_app_date_format",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "updateBySettingKey",
+                "idurar_app_date_format"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settingValue\": \"DD/MM/YYYY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
-          "name": "Upload Setting Value",
+          "name": "Upload Setting File",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Upload a file value for a setting key, such as company logo.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/upload/company_logo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "upload",
+                "company_logo"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "formdata",
-              "formdata": [{ "key": "settingValue", "type": "file", "src": "" }]
-            },
-            "url": "{{baseUrl}}/api/setting/upload/{{settingKey}}"
+              "formdata": [
+                {
+                  "key": "settingValue",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
           }
         },
         {
@@ -237,82 +1090,1888 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"settings\": [\n    { \"settingKey\": \"company_name\", \"settingValue\": \"IDURAR\" },\n    { \"settingKey\": \"company_phone\", \"settingValue\": \"+84 28 1234 5678\" }\n  ]\n}" },
-            "url": "{{baseUrl}}/api/setting/updateManySetting"
+            "description": "Bulk update settings by settingKey.",
+            "url": {
+              "raw": "{{baseUrl}}/api/setting/updateManySetting",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "setting",
+                "updateManySetting"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settings\": [\n    {\n      \"settingKey\": \"idurar_app_date_format\",\n      \"settingValue\": \"DD/MM/YYYY\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]
     },
     {
-      "name": "ERP Generic",
-      "description": "Set {{entity}} to one of: client, invoice, payment, paymentmode, quote, taxes.",
+      "name": "Client",
       "item": [
         {
-          "name": "Entity Create",
+          "name": "Create Client",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
+            "description": "Create one Client record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "create"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Sample Name\"\n}"
-            },
-            "url": "{{baseUrl}}/api/{{entity}}/create",
-            "description": "Use a body that matches the selected entity schema."
+              "raw": "{\n  \"name\": \"Sample Client\",\n  \"email\": \"client@example.com\",\n  \"phone\": \"+84901234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Entity Read", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/read/{{entityId}}" } },
         {
-          "name": "Entity Update",
+          "name": "Read Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Client record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/read/{{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "read",
+                "{{clientId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Client",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\"\n}" },
-            "url": "{{baseUrl}}/api/{{entity}}/update/{{entityId}}"
+            "description": "Update one Client record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/update/{{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "update",
+                "{{clientId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Client\",\n  \"email\": \"client@example.com\",\n  \"phone\": \"+84901234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
-        { "name": "Entity Delete", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/delete/{{entityId}}" } },
-        { "name": "Entity Search", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/search?q=sample&fields=name" } },
-        { "name": "Entity List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/list?page=1&items=10&sortBy=created&sortValue=-1" } },
-        { "name": "Entity List All", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/listAll" } },
-        { "name": "Entity Filter", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/filter?filter=enabled&equal=true" } },
-        { "name": "Entity Summary", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/{{entity}}/summary?filter=enabled&equal=true" } }
+        {
+          "name": "Delete Client",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Client record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/delete/{{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "delete",
+                "{{clientId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Client records using concrete path /api/client/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/search?q=sample&fields=name,email,phone",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "name,email,phone"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Client records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Client records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Client records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/filter?filter=name&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "name"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Client.",
+            "url": {
+              "raw": "{{baseUrl}}/api/client/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "client",
+                "summary"
+              ],
+              "query": []
+            }
+          }
+        }
       ]
     },
     {
-      "name": "ERP Special",
+      "name": "Invoice",
       "item": [
         {
-          "name": "Entity Mail",
+          "name": "Create Invoice",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
             ],
+            "description": "Create one Invoice record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "create"
+              ],
+              "query": []
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{entityId}}\",\n  \"email\": \"customer@example.com\"\n}"
-            },
-            "url": "{{baseUrl}}/api/{{mailEntity}}/mail",
-            "description": "Supported by route pattern for invoice, payment, and quote. In the current repo, invoice and payment have explicit mail controllers."
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"date\": \"2026-06-04\",\n  \"expiredDate\": \"2026-06-30\",\n  \"items\": [\n    {\n      \"itemName\": \"Consulting\",\n      \"quantity\": 1,\n      \"price\": 100,\n      \"total\": 100\n    }\n  ],\n  \"taxRate\": 0,\n  \"subTotal\": 100,\n  \"taxTotal\": 0,\n  \"total\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         },
         {
-          "name": "Quote Convert",
+          "name": "Read Invoice",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": "{{baseUrl}}/api/quote/convert/{{entityId}}",
-            "description": "Declared by the quote route pattern."
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Invoice record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/read/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "read",
+                "{{invoiceId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update one Invoice record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/update/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "update",
+                "{{invoiceId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"date\": \"2026-06-04\",\n  \"expiredDate\": \"2026-06-30\",\n  \"items\": [\n    {\n      \"itemName\": \"Consulting\",\n      \"quantity\": 1,\n      \"price\": 100,\n      \"total\": 100\n    }\n  ],\n  \"taxRate\": 0,\n  \"subTotal\": 100,\n  \"taxTotal\": 0,\n  \"total\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Invoice record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/delete/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "delete",
+                "{{invoiceId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Invoice records using concrete path /api/invoice/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/search?q=sample&fields=number,client,status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "number,client,status"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Invoice records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Invoice records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Invoice records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/filter?filter=number&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "number"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Invoice.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "summary"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Send Invoice Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Send Invoice document by email.",
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice/mail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "invoice",
+                "mail"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{invoiceId}}\",\n  \"email\": \"recipient@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create one Payment record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"invoice\": \"{{invoiceId}}\",\n  \"date\": \"2026-06-04\",\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"ref\": \"PAY-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Payment record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/read/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "read",
+                "{{paymentId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Payment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update one Payment record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/update/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "update",
+                "{{paymentId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"invoice\": \"{{invoiceId}}\",\n  \"date\": \"2026-06-04\",\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"ref\": \"PAY-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Payment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Payment record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/delete/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "delete",
+                "{{paymentId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Payment records using concrete path /api/payment/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/search?q=sample&fields=number,ref,description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "number,ref,description"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Payment records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Payment records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Payment records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/filter?filter=number&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "number"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Payment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Payment.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "summary"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Send Payment Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Send Payment document by email.",
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/mail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "mail"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{paymentId}}\",\n  \"email\": \"recipient@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Mode",
+      "item": [
+        {
+          "name": "Create Payment Mode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create one Payment Mode record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bank Transfer\",\n  \"description\": \"Wire transfer\",\n  \"isDefault\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Payment Mode record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/read/{{paymentmodeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "read",
+                "{{paymentmodeId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Payment Mode",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update one Payment Mode record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/update/{{paymentmodeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "update",
+                "{{paymentmodeId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bank Transfer\",\n  \"description\": \"Wire transfer\",\n  \"isDefault\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Payment Mode",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Payment Mode record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/delete/{{paymentmodeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "delete",
+                "{{paymentmodeId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Payment Mode records using concrete path /api/paymentmode/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/search?q=sample&fields=name,description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "name,description"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Payment Mode records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Payment Mode records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Payment Mode records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/filter?filter=name&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "name"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Payment Mode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Payment Mode.",
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentmode/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "paymentmode",
+                "summary"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quote",
+      "item": [
+        {
+          "name": "Create Quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create one Quote record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"date\": \"2026-06-04\",\n  \"expiredDate\": \"2026-06-30\",\n  \"items\": [\n    {\n      \"itemName\": \"Consulting\",\n      \"quantity\": 1,\n      \"price\": 100,\n      \"total\": 100\n    }\n  ],\n  \"taxRate\": 0,\n  \"subTotal\": 100,\n  \"taxTotal\": 0,\n  \"total\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Quote record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/read/{{quoteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "read",
+                "{{quoteId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Quote",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update one Quote record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/update/{{quoteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "update",
+                "{{quoteId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client\": \"{{clientId}}\",\n  \"date\": \"2026-06-04\",\n  \"expiredDate\": \"2026-06-30\",\n  \"items\": [\n    {\n      \"itemName\": \"Consulting\",\n      \"quantity\": 1,\n      \"price\": 100,\n      \"total\": 100\n    }\n  ],\n  \"taxRate\": 0,\n  \"subTotal\": 100,\n  \"taxTotal\": 0,\n  \"total\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Quote",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Quote record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/delete/{{quoteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "delete",
+                "{{quoteId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Quote records using concrete path /api/quote/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/search?q=sample&fields=number,client,status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "number,client,status"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Quote records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Quote records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Quote records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/filter?filter=number&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "number"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Quote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Quote.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "summary"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Send Quote Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Send Quote document by email.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/mail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "mail"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{quoteId}}\",\n  \"email\": \"recipient@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Convert Quote To Invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Convert one quote to an invoice.",
+            "url": {
+              "raw": "{{baseUrl}}/api/quote/convert/{{quoteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quote",
+                "convert",
+                "{{quoteId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Taxes",
+      "item": [
+        {
+          "name": "Create Taxes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Create one Taxes record.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxName\": \"VAT 10%\",\n  \"taxValue\": \"10\",\n  \"isDefault\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Read one Taxes record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/read/{{taxesId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "read",
+                "{{taxesId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Update Taxes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Update one Taxes record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/update/{{taxesId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "update",
+                "{{taxesId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxName\": \"VAT 10%\",\n  \"taxValue\": \"10\",\n  \"isDefault\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Taxes",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Soft-delete one Taxes record by id.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/delete/{{taxesId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "delete",
+                "{{taxesId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Search Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Search Taxes records using concrete path /api/taxes/search.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/search?q=sample&fields=taxName,taxValue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "sample"
+                },
+                {
+                  "key": "fields",
+                  "value": "taxName,taxValue"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List Taxes records with pagination.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/list?page=1&items=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "items",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List All Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "List all Taxes records.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/listAll",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "listAll"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Filter Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Filter Taxes records by a concrete field.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/filter?filter=taxName&equal=sample",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "taxName"
+                },
+                {
+                  "key": "equal",
+                  "value": "sample"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary Taxes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "description": "Return summary counts for Taxes.",
+            "url": {
+              "raw": "{{baseUrl}}/api/taxes/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "taxes",
+                "summary"
+              ],
+              "query": []
+            }
           }
         }
       ]
@@ -320,8 +2979,47 @@
     {
       "name": "Files",
       "item": [
-        { "name": "Download PDF", "request": { "method": "GET", "url": "{{baseUrl}}/download/{{downloadDirectory}}/{{downloadFile}}" } },
-        { "name": "Public File", "request": { "method": "GET", "url": "{{baseUrl}}/public/{{publicSubPath}}/{{publicDirectory}}/{{publicFile}}" } }
+        {
+          "name": "Download PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Download a generated PDF file.",
+            "url": {
+              "raw": "{{baseUrl}}/download/{{directory}}/{{fileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "download",
+                "{{directory}}",
+                "{{fileName}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Get Public File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Read a public uploaded file.",
+            "url": {
+              "raw": "{{baseUrl}}/public/{{subPath}}/{{directory}}/{{fileName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "{{subPath}}",
+                "{{directory}}",
+                "{{fileName}}"
+              ],
+              "query": []
+            }
+          }
+        }
       ]
     }
   ]

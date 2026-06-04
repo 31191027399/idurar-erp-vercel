@@ -7,6 +7,7 @@ const deleteAdmin = require('./delete');
 const search = require('./search');
 const maintenance = require('./maintenance');
 const apiKey = require('./apiKey');
+const integration = require('./integration');
 
 const userController = createUserController('Admin');
 
@@ -19,6 +20,7 @@ const adminController = {
   search,
   maintenance,
   apiKey,
+  integration,
 };
 
 module.exports = adminController;

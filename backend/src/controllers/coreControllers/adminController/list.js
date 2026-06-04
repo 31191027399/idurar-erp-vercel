@@ -8,6 +8,15 @@ const list = async (req, res) => {
   const skip = page * limit - limit;
 
   const { sortBy = 'created', sortValue = -1, filter, equal } = req.query;
+  const normalizedSortValue = Number(sortValue);
+
+  if (![1, -1].includes(normalizedSortValue)) {
+    return res.status(400).json({
+      success: false,
+      result: [],
+      message: 'Invalid sort value. Use 1 for ascending or -1 for descending.',
+    });
+  }
 
   const fieldsArray = req.query.fields ? req.query.fields.split(',') : [];
 
@@ -29,7 +38,7 @@ const list = async (req, res) => {
   })
     .skip(skip)
     .limit(limit)
-    .sort({ [sortBy]: sortValue })
+    .sort({ [sortBy]: normalizedSortValue })
     .exec();
 
   const countPromise = Admin.countDocuments({

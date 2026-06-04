@@ -23,6 +23,8 @@ router.route('/admin/maintenance/seed').post(catchErrors(adminController.mainten
 router.route('/admin/api-key/create').post(catchErrors(adminController.apiKey.create));
 router.route('/admin/api-key/list').get(catchErrors(adminController.apiKey.list));
 router.route('/admin/api-key/revoke/:id').patch(catchErrors(adminController.apiKey.revoke));
+router.route('/admin/integration-settings').get(catchErrors(adminController.integration.read));
+router.route('/admin/integration-settings').patch(catchErrors(adminController.integration.update));
 
 //_______________________________ Admin Profile _______________________________
 
