@@ -1,0 +1,196 @@
+paths:
+  /api/taxes/create:
+    post:
+      tags: [Taxes]
+      summary: Create a tax rate
+      description: Creates a new tax rate applicable to invoice line items.
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaxesCreate' }
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      result: { $ref: '#/components/schemas/Taxes' }
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /api/taxes/read/{id}:
+    get:
+      tags: [Taxes]
+      summary: Read a tax rate by id
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      result: { $ref: '#/components/schemas/Taxes' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /api/taxes/update/{id}:
+    patch:
+      tags: [Taxes]
+      summary: Update a tax rate
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TaxesUpdate' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      result: { $ref: '#/components/schemas/Taxes' }
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /api/taxes/delete/{id}:
+    delete:
+      tags: [Taxes]
+      summary: Soft-delete a tax rate
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+
+  /api/taxes/list:
+    get:
+      tags: [Taxes]
+      summary: Paginated list of tax rates
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: itemsPerPage, in: query, schema: { type: integer, default: 10 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items: { $ref: '#/components/schemas/Taxes' }
+
+  /api/taxes/listAll:
+    get:
+      tags: [Taxes]
+      summary: All tax rates (no pagination)
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items: { $ref: '#/components/schemas/Taxes' }
+
+  /api/taxes/search:
+    get:
+      tags: [Taxes]
+      summary: Search tax rates by query
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+        - { name: fields, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items: { $ref: '#/components/schemas/Taxes' }
+
+  /api/taxes/filter:
+    get:
+      tags: [Taxes]
+      summary: Filter tax rates by arbitrary fields
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      parameters:
+        - { name: filter, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items: { $ref: '#/components/schemas/Taxes' }
+
+  /api/taxes/summary:
+    get:
+      tags: [Taxes]
+      summary: Aggregate summary of tax rates
+      security: [{ bearerAuth: [] }, { apiKeyAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }

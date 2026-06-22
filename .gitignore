@@ -7,6 +7,8 @@ dist/
 build/
 .vite/
 *.tsbuildinfo
+# Exception: openapi/build/ is GENERATED but COMMITTED (drift detector needs it)
+!openapi/build/
 
 # Environment files
 .env
@@ -48,6 +50,9 @@ backend/public/uploads/
 
 # Vercel
 .vercel/
+
+# opencode tooling (local agent config, not project code)
+.opencode/
 
 # Testing
 coverage/

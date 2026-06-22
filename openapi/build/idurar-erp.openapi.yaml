@@ -1,0 +1,2840 @@
+components:
+  schemas:
+    Admin:
+      properties:
+        _id:
+          type: string
+        email:
+          format: email
+          type: string
+        enabled:
+          type: boolean
+        name:
+          type: string
+        photo:
+          type: string
+        role:
+          enum:
+            - owner
+            - admin
+            - manager
+            - employee
+            - create_only
+            - read_only
+          type: string
+        surname:
+          type: string
+      type: object
+    AdminApiKey:
+      properties:
+        _id:
+          type: string
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        key:
+          description: Returned only once after creation.
+          type: string
+        keyPrefix:
+          type: string
+        name:
+          type: string
+        revoked:
+          type: boolean
+        scopes:
+          items:
+            type: string
+          type: array
+      type: object
+    AdminApiKeyCreateRequest:
+      properties:
+        expiresInDays:
+          nullable: true
+          type: integer
+        name:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      required:
+        - name
+      type: object
+    ApiResponse:
+      properties:
+        message:
+          type: string
+        result:
+          nullable: true
+        success:
+          type: boolean
+      type: object
+    Client:
+      properties:
+        _id:
+          type: string
+        address:
+          type: string
+        assigned:
+          type: string
+        country:
+          type: string
+        createdBy:
+          type: string
+        email:
+          format: email
+          type: string
+        enabled:
+          type: boolean
+        name:
+          type: string
+        phone:
+          type: string
+      required:
+        - name
+      type: object
+    ForgetPasswordRequest:
+      properties:
+        email:
+          format: email
+          type: string
+      required:
+        - email
+      type: object
+    IntegrationSettings:
+      properties:
+        apiKey:
+          format: password
+          type: string
+        baseUrl:
+          example: https://api.example.com
+          format: uri
+          type: string
+        hasApiKey:
+          readOnly: true
+          type: boolean
+        serviceName:
+          example: Stripe
+          type: string
+      required:
+        - serviceName
+        - baseUrl
+        - apiKey
+      type: object
+    Invoice:
+      properties:
+        _id:
+          type: string
+        client:
+          type: string
+        credit:
+          type: number
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        discount:
+          type: number
+        expiredDate:
+          format: date-time
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/LineItem'
+          type: array
+        notes:
+          type: string
+        number:
+          type: integer
+        paymentStatus:
+          type: string
+        status:
+          type: string
+        subTotal:
+          type: number
+        taxRate:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        year:
+          type: integer
+      type: object
+    LineItem:
+      properties:
+        description:
+          type: string
+        itemName:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: number
+        total:
+          type: number
+      required:
+        - itemName
+        - quantity
+        - price
+        - total
+      type: object
+    LoginRequest:
+      properties:
+        email:
+          format: email
+          type: string
+        password:
+          type: string
+        remember:
+          type: boolean
+      required:
+        - email
+        - password
+      type: object
+    MailRequest:
+      properties:
+        email:
+          format: email
+          type: string
+        id:
+          type: string
+      type: object
+    MaintenanceSeedRequest:
+      properties:
+        clean:
+          default: true
+          type: boolean
+        counts:
+          properties:
+            clients:
+              type: integer
+            invoices:
+              type: integer
+            payments:
+              type: integer
+            quotes:
+              type: integer
+          type: object
+      type: object
+    PaginatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - properties:
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+          type: object
+    Pagination:
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      type: object
+    Payment:
+      properties:
+        _id:
+          type: string
+        amount:
+          type: number
+        client:
+          type: string
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        description:
+          type: string
+        invoice:
+          type: string
+        number:
+          type: integer
+        ref:
+          type: string
+      type: object
+    PaymentMode:
+      properties:
+        _id:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        isDefault:
+          type: boolean
+        name:
+          type: string
+      type: object
+    Quote:
+      properties:
+        _id:
+          type: string
+        client:
+          type: string
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        discount:
+          type: number
+        expiredDate:
+          format: date-time
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/LineItem'
+          type: array
+        notes:
+          type: string
+        number:
+          type: integer
+        status:
+          type: string
+        subTotal:
+          type: number
+        taxRate:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        year:
+          type: integer
+      type: object
+    ResetPasswordRequest:
+      properties:
+        password:
+          type: string
+        resetToken:
+          type: string
+        userId:
+          type: string
+      required:
+        - userId
+        - resetToken
+        - password
+      type: object
+    Setting:
+      properties:
+        _id:
+          type: string
+        enabled:
+          type: boolean
+        isCoreSetting:
+          type: boolean
+        isPrivate:
+          type: boolean
+        settingCategory:
+          type: string
+        settingKey:
+          type: string
+        settingValue: {}
+        valueType:
+          type: string
+      type: object
+    Taxes:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        _id:
+          format: objectid
+          readOnly: true
+          type: string
+        createdAt:
+          format: date-time
+          readOnly: true
+          type: string
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+        removed:
+          readOnly: true
+          type: boolean
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+        updatedAt:
+          format: date-time
+          readOnly: true
+          type: string
+      type: object
+    TaxesCreate:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+          writeOnly: true
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+          writeOnly: true
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+          writeOnly: true
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+          writeOnly: true
+      required:
+        - taxName
+        - taxValue
+      type: object
+    TaxesResponse:
+      $ref: '#/components/schemas/Taxes'
+    TaxesUpdate:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+      type: object
+  securitySchemes:
+    apiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  description: |-
+    OpenAPI specification for the current Express routes in this repository.
+    Entity schemas are GENERATED from Mongoose models + authored *.openapi.js declarations.
+    Do not edit openapi/build/* by hand; run `npm run spec:gen`.
+  title: IDURAR ERP API
+  version: 1.0.0
+openapi: 3.0.3
+paths:
+  /api/admin/api-key/create:
+    post:
+      description: Creates an API key that external systems can use to call protected ERP API routes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminApiKeyCreateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: API key created. Full key is returned once.
+      security:
+        - bearerAuth: []
+      summary: Create inbound API key
+      tags:
+        - Admin API Keys
+  /api/admin/api-key/list:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: API keys returned.
+      security:
+        - bearerAuth: []
+      summary: List inbound API keys
+      tags:
+        - Admin API Keys
+  /api/admin/api-key/revoke/{id}:
+    patch:
+      parameters:
+        - description: API key id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: API key revoked.
+      security:
+        - bearerAuth: []
+      summary: Revoke inbound API key
+      tags:
+        - Admin API Keys
+  /api/admin/create:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Admin created.
+      security:
+        - bearerAuth: []
+      summary: Create admin
+      tags:
+        - Admin
+  /api/admin/delete/{id}:
+    delete:
+      parameters:
+        - description: Admin id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Admin deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete admin
+      tags:
+        - Admin
+  /api/admin/integration-settings:
+    get:
+      description: >-
+        Returns the saved outbound integration service name, base URL, and API key for authenticated
+        admins.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Integration settings returned.
+      security:
+        - bearerAuth: []
+      summary: Read third-party integration settings
+      tags:
+        - Integration Settings
+    patch:
+      description: Saves outbound credentials used when this ERP connects to another third-party system.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationSettings'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Integration settings updated.
+      security:
+        - bearerAuth: []
+      summary: Update third-party integration settings
+      tags:
+        - Integration Settings
+  /api/admin/list:
+    get:
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated admin list.
+      security:
+        - bearerAuth: []
+      summary: List admins
+      tags:
+        - Admin
+  /api/admin/maintenance/clean:
+    post:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Clean success.
+      security:
+        - bearerAuth: []
+      summary: Clean ERP demo data
+      tags:
+        - Admin
+  /api/admin/maintenance/seed:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceSeedRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Seed success.
+      security:
+        - bearerAuth: []
+      summary: Seed ERP demo data
+      tags:
+        - Admin
+  /api/admin/password-update/{id}:
+    patch:
+      parameters:
+        - description: Admin id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
+              required:
+                - password
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Password updated.
+      security:
+        - bearerAuth: []
+      summary: Update another admin password
+      tags:
+        - Admin
+  /api/admin/profile/password:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Profile password updated.
+      security:
+        - bearerAuth: []
+      summary: Update current profile password
+      tags:
+        - Admin
+  /api/admin/profile/update:
+    patch:
+      description: Updates current admin profile and optionally uploads a profile photo.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                name:
+                  type: string
+                photo:
+                  format: binary
+                  type: string
+                surname:
+                  type: string
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Profile updated.
+      security:
+        - bearerAuth: []
+      summary: Update current profile
+      tags:
+        - Admin
+  /api/admin/read/{id}:
+    get:
+      parameters:
+        - description: Admin id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Admin found.
+      security:
+        - bearerAuth: []
+      summary: Read admin
+      tags:
+        - Admin
+  /api/admin/search:
+    get:
+      parameters:
+        - description: Search text for admins.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated admin fields. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Admin search results.
+      security:
+        - bearerAuth: []
+      summary: Search admins
+      tags:
+        - Admin
+  /api/admin/update/{id}:
+    patch:
+      parameters:
+        - description: Admin id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Admin updated.
+      security:
+        - bearerAuth: []
+      summary: Update admin
+      tags:
+        - Admin
+  /api/client/create:
+    post:
+      description: Creates one Client record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client created.
+      security:
+        - bearerAuth: []
+      summary: Create Client
+      tags:
+        - Client
+  /api/client/delete/{id}:
+    delete:
+      description: Soft-deletes one Client record by MongoDB id.
+      parameters:
+        - description: Client id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete Client
+      tags:
+        - Client
+  /api/client/filter:
+    get:
+      description: Filters Client records by one field and exact value.
+      parameters:
+        - description: Field name on Client.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered Client records.
+      security:
+        - bearerAuth: []
+      summary: Filter Client
+      tags:
+        - Client
+  /api/client/list:
+    get:
+      description: Returns paginated Client records with optional search, sort, and filter query parameters.
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated Client list.
+      security:
+        - bearerAuth: []
+      summary: List Client
+      tags:
+        - Client
+  /api/client/listAll:
+    get:
+      description: Returns all Client records.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All Client records.
+      security:
+        - bearerAuth: []
+      summary: List all Client
+      tags:
+        - Client
+  /api/client/read/{id}:
+    get:
+      description: Returns one Client record by MongoDB id.
+      parameters:
+        - description: Client id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client found.
+      security:
+        - bearerAuth: []
+      summary: Read Client
+      tags:
+        - Client
+  /api/client/search:
+    get:
+      description: Searches Client records. Use fields=name,email,phone as a starting point.
+      parameters:
+        - description: Search text for Client.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated Client fields. Example: name,email,phone'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client search results.
+      security:
+        - bearerAuth: []
+      summary: Search Client
+      tags:
+        - Client
+  /api/client/summary:
+    get:
+      description: Returns summary counts for Client records.
+      parameters:
+        - description: Optional field name on Client.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Optional exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client summary.
+      security:
+        - bearerAuth: []
+      summary: Summarize Client
+      tags:
+        - Client
+  /api/client/update/{id}:
+    patch:
+      description: Updates one Client record by MongoDB id.
+      parameters:
+        - description: Client id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Client updated.
+      security:
+        - bearerAuth: []
+      summary: Update Client
+      tags:
+        - Client
+  /api/forgetpassword:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPasswordRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Reset email triggered.
+      summary: Send password reset email
+      tags:
+        - Auth
+  /api/invoice/create:
+    post:
+      description: Creates one Invoice record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invoice'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice created.
+      security:
+        - bearerAuth: []
+      summary: Create Invoice
+      tags:
+        - Invoice
+  /api/invoice/delete/{id}:
+    delete:
+      description: Soft-deletes one Invoice record by MongoDB id.
+      parameters:
+        - description: Invoice id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete Invoice
+      tags:
+        - Invoice
+  /api/invoice/filter:
+    get:
+      description: Filters Invoice records by one field and exact value.
+      parameters:
+        - description: Field name on Invoice.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered Invoice records.
+      security:
+        - bearerAuth: []
+      summary: Filter Invoice
+      tags:
+        - Invoice
+  /api/invoice/list:
+    get:
+      description: Returns paginated Invoice records with optional search, sort, and filter query parameters.
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated Invoice list.
+      security:
+        - bearerAuth: []
+      summary: List Invoice
+      tags:
+        - Invoice
+  /api/invoice/listAll:
+    get:
+      description: Returns all Invoice records.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All Invoice records.
+      security:
+        - bearerAuth: []
+      summary: List all Invoice
+      tags:
+        - Invoice
+  /api/invoice/mail:
+    post:
+      description: Sends the Invoice document to an email address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice email processed.
+      security:
+        - bearerAuth: []
+      summary: Send Invoice email
+      tags:
+        - Invoice
+  /api/invoice/read/{id}:
+    get:
+      description: Returns one Invoice record by MongoDB id.
+      parameters:
+        - description: Invoice id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice found.
+      security:
+        - bearerAuth: []
+      summary: Read Invoice
+      tags:
+        - Invoice
+  /api/invoice/search:
+    get:
+      description: Searches Invoice records. Use fields=number,client,status as a starting point.
+      parameters:
+        - description: Search text for Invoice.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated Invoice fields. Example: number,client,status'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice search results.
+      security:
+        - bearerAuth: []
+      summary: Search Invoice
+      tags:
+        - Invoice
+  /api/invoice/summary:
+    get:
+      description: Returns summary counts for Invoice records.
+      parameters:
+        - description: Optional field name on Invoice.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Optional exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice summary.
+      security:
+        - bearerAuth: []
+      summary: Summarize Invoice
+      tags:
+        - Invoice
+  /api/invoice/update/{id}:
+    patch:
+      description: Updates one Invoice record by MongoDB id.
+      parameters:
+        - description: Invoice id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invoice'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Invoice updated.
+      security:
+        - bearerAuth: []
+      summary: Update Invoice
+      tags:
+        - Invoice
+  /api/login:
+    post:
+      description: Authenticates an admin user and returns a bearer token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Login success.
+      summary: Login
+      tags:
+        - Auth
+  /api/logout:
+    post:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Logout success.
+      security:
+        - bearerAuth: []
+      summary: Logout current session
+      tags:
+        - Auth
+  /api/payment/create:
+    post:
+      description: Creates one Payment record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment created.
+      security:
+        - bearerAuth: []
+      summary: Create Payment
+      tags:
+        - Payment
+  /api/payment/delete/{id}:
+    delete:
+      description: Soft-deletes one Payment record by MongoDB id.
+      parameters:
+        - description: Payment id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete Payment
+      tags:
+        - Payment
+  /api/payment/filter:
+    get:
+      description: Filters Payment records by one field and exact value.
+      parameters:
+        - description: Field name on Payment.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered Payment records.
+      security:
+        - bearerAuth: []
+      summary: Filter Payment
+      tags:
+        - Payment
+  /api/payment/list:
+    get:
+      description: Returns paginated Payment records with optional search, sort, and filter query parameters.
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated Payment list.
+      security:
+        - bearerAuth: []
+      summary: List Payment
+      tags:
+        - Payment
+  /api/payment/listAll:
+    get:
+      description: Returns all Payment records.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All Payment records.
+      security:
+        - bearerAuth: []
+      summary: List all Payment
+      tags:
+        - Payment
+  /api/payment/mail:
+    post:
+      description: Sends the Payment document to an email address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment email processed.
+      security:
+        - bearerAuth: []
+      summary: Send Payment email
+      tags:
+        - Payment
+  /api/payment/read/{id}:
+    get:
+      description: Returns one Payment record by MongoDB id.
+      parameters:
+        - description: Payment id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment found.
+      security:
+        - bearerAuth: []
+      summary: Read Payment
+      tags:
+        - Payment
+  /api/payment/search:
+    get:
+      description: Searches Payment records. Use fields=number,ref,description as a starting point.
+      parameters:
+        - description: Search text for Payment.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated Payment fields. Example: number,ref,description'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment search results.
+      security:
+        - bearerAuth: []
+      summary: Search Payment
+      tags:
+        - Payment
+  /api/payment/summary:
+    get:
+      description: Returns summary counts for Payment records.
+      parameters:
+        - description: Optional field name on Payment.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Optional exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment summary.
+      security:
+        - bearerAuth: []
+      summary: Summarize Payment
+      tags:
+        - Payment
+  /api/payment/update/{id}:
+    patch:
+      description: Updates one Payment record by MongoDB id.
+      parameters:
+        - description: Payment id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment updated.
+      security:
+        - bearerAuth: []
+      summary: Update Payment
+      tags:
+        - Payment
+  /api/paymentmode/create:
+    post:
+      description: Creates one Payment Mode record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMode'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode created.
+      security:
+        - bearerAuth: []
+      summary: Create Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/delete/{id}:
+    delete:
+      description: Soft-deletes one Payment Mode record by MongoDB id.
+      parameters:
+        - description: Payment Mode id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/filter:
+    get:
+      description: Filters Payment Mode records by one field and exact value.
+      parameters:
+        - description: Field name on Payment Mode.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered Payment Mode records.
+      security:
+        - bearerAuth: []
+      summary: Filter Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/list:
+    get:
+      description: >-
+        Returns paginated Payment Mode records with optional search, sort, and filter query
+        parameters.
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated Payment Mode list.
+      security:
+        - bearerAuth: []
+      summary: List Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/listAll:
+    get:
+      description: Returns all Payment Mode records.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All Payment Mode records.
+      security:
+        - bearerAuth: []
+      summary: List all Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/read/{id}:
+    get:
+      description: Returns one Payment Mode record by MongoDB id.
+      parameters:
+        - description: Payment Mode id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode found.
+      security:
+        - bearerAuth: []
+      summary: Read Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/search:
+    get:
+      description: Searches Payment Mode records. Use fields=name,description as a starting point.
+      parameters:
+        - description: Search text for Payment Mode.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated Payment Mode fields. Example: name,description'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode search results.
+      security:
+        - bearerAuth: []
+      summary: Search Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/summary:
+    get:
+      description: Returns summary counts for Payment Mode records.
+      parameters:
+        - description: Optional field name on Payment Mode.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Optional exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode summary.
+      security:
+        - bearerAuth: []
+      summary: Summarize Payment Mode
+      tags:
+        - Payment Mode
+  /api/paymentmode/update/{id}:
+    patch:
+      description: Updates one Payment Mode record by MongoDB id.
+      parameters:
+        - description: Payment Mode id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMode'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Payment Mode updated.
+      security:
+        - bearerAuth: []
+      summary: Update Payment Mode
+      tags:
+        - Payment Mode
+  /api/quote/convert/{id}:
+    get:
+      parameters:
+        - description: Quote id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote converted.
+      security:
+        - bearerAuth: []
+      summary: Convert quote to invoice
+      tags:
+        - Quote
+  /api/quote/create:
+    post:
+      description: Creates one Quote record.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quote'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote created.
+      security:
+        - bearerAuth: []
+      summary: Create Quote
+      tags:
+        - Quote
+  /api/quote/delete/{id}:
+    delete:
+      description: Soft-deletes one Quote record by MongoDB id.
+      parameters:
+        - description: Quote id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote deleted.
+      security:
+        - bearerAuth: []
+      summary: Delete Quote
+      tags:
+        - Quote
+  /api/quote/filter:
+    get:
+      description: Filters Quote records by one field and exact value.
+      parameters:
+        - description: Field name on Quote.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered Quote records.
+      security:
+        - bearerAuth: []
+      summary: Filter Quote
+      tags:
+        - Quote
+  /api/quote/list:
+    get:
+      description: Returns paginated Quote records with optional search, sort, and filter query parameters.
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated Quote list.
+      security:
+        - bearerAuth: []
+      summary: List Quote
+      tags:
+        - Quote
+  /api/quote/listAll:
+    get:
+      description: Returns all Quote records.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All Quote records.
+      security:
+        - bearerAuth: []
+      summary: List all Quote
+      tags:
+        - Quote
+  /api/quote/mail:
+    post:
+      description: Sends the Quote document to an email address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote email processed.
+      security:
+        - bearerAuth: []
+      summary: Send Quote email
+      tags:
+        - Quote
+  /api/quote/read/{id}:
+    get:
+      description: Returns one Quote record by MongoDB id.
+      parameters:
+        - description: Quote id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote found.
+      security:
+        - bearerAuth: []
+      summary: Read Quote
+      tags:
+        - Quote
+  /api/quote/search:
+    get:
+      description: Searches Quote records. Use fields=number,client,status as a starting point.
+      parameters:
+        - description: Search text for Quote.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated Quote fields. Example: number,client,status'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote search results.
+      security:
+        - bearerAuth: []
+      summary: Search Quote
+      tags:
+        - Quote
+  /api/quote/summary:
+    get:
+      description: Returns summary counts for Quote records.
+      parameters:
+        - description: Optional field name on Quote.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Optional exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote summary.
+      security:
+        - bearerAuth: []
+      summary: Summarize Quote
+      tags:
+        - Quote
+  /api/quote/update/{id}:
+    patch:
+      description: Updates one Quote record by MongoDB id.
+      parameters:
+        - description: Quote id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quote'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Quote updated.
+      security:
+        - bearerAuth: []
+      summary: Update Quote
+      tags:
+        - Quote
+  /api/resetpassword:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Password reset success.
+      summary: Reset password
+      tags:
+        - Auth
+  /api/setting/create:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting created.
+      security:
+        - bearerAuth: []
+      summary: Create setting
+      tags:
+        - Settings
+  /api/setting/filter:
+    get:
+      parameters:
+        - description: Setting field name.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact field value to match.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Filtered settings returned.
+      security:
+        - bearerAuth: []
+      summary: Filter settings
+      tags:
+        - Settings
+  /api/setting/list:
+    get:
+      parameters:
+        - description: Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: Items per page.
+          in: query
+          name: items
+          schema:
+            type: integer
+        - description: Field to sort by.
+          in: query
+          name: sortBy
+          schema:
+            type: string
+        - description: Use 1 for ascending or -1 for descending.
+          in: query
+          name: sortValue
+          schema:
+            type: integer
+        - description: Search text.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated fields to search. Example: name,email'
+          in: query
+          name: fields
+          schema:
+            type: string
+        - description: Field name to filter.
+          in: query
+          name: filter
+          schema:
+            type: string
+        - description: Exact value for the filter field.
+          in: query
+          name: equal
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Paginated settings list.
+      security:
+        - bearerAuth: []
+      summary: List settings
+      tags:
+        - Settings
+  /api/setting/listAll:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: All public settings returned.
+      security:
+        - bearerAuth: []
+      summary: List all public settings
+      tags:
+        - Settings
+  /api/setting/listBySettingKey:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Settings returned.
+      security:
+        - bearerAuth: []
+      summary: List settings by key
+      tags:
+        - Settings
+  /api/setting/read/{id}:
+    get:
+      parameters:
+        - description: Setting id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting found.
+      security:
+        - bearerAuth: []
+      summary: Read setting
+      tags:
+        - Settings
+  /api/setting/readBySettingKey/{settingKey}:
+    get:
+      parameters:
+        - description: Setting key, for example idurar_app_date_format.
+          in: path
+          name: settingKey
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting returned.
+      security:
+        - bearerAuth: []
+      summary: Read setting by key
+      tags:
+        - Settings
+  /api/setting/search:
+    get:
+      parameters:
+        - description: Search text for settings.
+          in: query
+          name: q
+          schema:
+            type: string
+        - description: 'Comma-separated setting fields. Example: settingKey,settingCategory'
+          in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting search results.
+      security:
+        - bearerAuth: []
+      summary: Search settings
+      tags:
+        - Settings
+  /api/setting/update/{id}:
+    patch:
+      parameters:
+        - description: Setting id.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting updated.
+      security:
+        - bearerAuth: []
+      summary: Update setting
+      tags:
+        - Settings
+  /api/setting/updateBySettingKey/{settingKey}:
+    patch:
+      parameters:
+        - description: Setting key to update.
+          in: path
+          name: settingKey
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                settingValue: {}
+              required:
+                - settingValue
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting updated.
+      security:
+        - bearerAuth: []
+      summary: Update setting by key
+      tags:
+        - Settings
+  /api/setting/updateManySetting:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                settings:
+                  items:
+                    properties:
+                      settingKey:
+                        type: string
+                      settingValue: {}
+                    required:
+                      - settingKey
+                      - settingValue
+                    type: object
+                  type: array
+              required:
+                - settings
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Settings updated.
+      security:
+        - bearerAuth: []
+      summary: Bulk update settings
+      tags:
+        - Settings
+  /api/setting/upload/{settingKey}:
+    patch:
+      parameters:
+        - description: Setting key to update.
+          in: path
+          name: settingKey
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                settingValue:
+                  format: binary
+                  type: string
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Setting file uploaded.
+      security:
+        - bearerAuth: []
+      summary: Upload setting value file
+      tags:
+        - Settings
+  /api/taxes/create:
+    post:
+      description: Creates a new tax rate applicable to invoice line items.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxesCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      result:
+                        $ref: '#/components/schemas/Taxes'
+                    type: object
+          description: Created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Validation error
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Create a tax rate
+      tags:
+        - Taxes
+  /api/taxes/delete/{id}:
+    delete:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Deleted
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Soft-delete a tax rate
+      tags:
+        - Taxes
+  /api/taxes/filter:
+    get:
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      result:
+                        items:
+                          $ref: '#/components/schemas/Taxes'
+                        type: array
+                    type: object
+          description: OK
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Filter tax rates by arbitrary fields
+      tags:
+        - Taxes
+  /api/taxes/list:
+    get:
+      parameters:
+        - in: query
+          name: page
+          schema:
+            default: 1
+            type: integer
+        - in: query
+          name: itemsPerPage
+          schema:
+            default: 10
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      result:
+                        items:
+                          $ref: '#/components/schemas/Taxes'
+                        type: array
+                    type: object
+          description: OK
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Paginated list of tax rates
+      tags:
+        - Taxes
+  /api/taxes/listAll:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      result:
+                        items:
+                          $ref: '#/components/schemas/Taxes'
+                        type: array
+                    type: object
+          description: OK
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: All tax rates (no pagination)
+      tags:
+        - Taxes
+  /api/taxes/read/{id}:
+    get:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      result:
+                        $ref: '#/components/schemas/Taxes'
+                    type: object
+          description: OK
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Not found
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Read a tax rate by id
+      tags:
+        - Taxes
+  /api/taxes/search:
+    get:
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      result:
+                        items:
+                          $ref: '#/components/schemas/Taxes'
+                        type: array
+                    type: object
+          description: OK
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Search tax rates by query
+      tags:
+        - Taxes
+  /api/taxes/summary:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: OK
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Aggregate summary of tax rates
+      tags:
+        - Taxes
+  /api/taxes/update/{id}:
+    patch:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxesUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - properties:
+                      result:
+                        $ref: '#/components/schemas/Taxes'
+                    type: object
+          description: Updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Validation error
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: Not found
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      summary: Update a tax rate
+      tags:
+        - Taxes
+  /download/{directory}/{file}:
+    get:
+      parameters:
+        - description: Download directory.
+          in: path
+          name: directory
+          required: true
+          schema:
+            type: string
+        - description: File name.
+          in: path
+          name: file
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: File download.
+      summary: Download generated PDF
+      tags:
+        - Files
+  /public/{subPath}/{directory}/{file}:
+    get:
+      parameters:
+        - description: Public subpath.
+          in: path
+          name: subPath
+          required: true
+          schema:
+            type: string
+        - description: Public directory.
+          in: path
+          name: directory
+          required: true
+          schema:
+            type: string
+        - description: File name.
+          in: path
+          name: file
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Public file.
+      summary: Get public file
+      tags:
+        - Files
+servers:
+  - description: Local backend
+    url: http://localhost:8888
+  - description: Vercel deployment
+    url: https://idurar-erp-vercel.vercel.app
+tags:
+  - name: Admin
+  - name: Admin API Keys
+  - name: Auth
+  - name: Client
+  - name: Files
+  - name: Integration Settings
+  - name: Invoice
+  - name: Payment
+  - name: Payment Mode
+  - name: Quote
+  - name: Settings
+  - name: Taxes

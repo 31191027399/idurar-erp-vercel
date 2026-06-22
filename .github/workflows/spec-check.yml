@@ -1,0 +1,32 @@
+name: spec-check
+
+on:
+  pull_request:
+    paths:
+      - 'backend/src/models/**/*.openapi.js'
+      - 'backend/src/models/_components/**'
+      - 'backend/src/operations/**'
+      - 'openapi/**'
+      - 'scripts/gen-spec.js'
+      - 'scripts/spec-check.js'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main, master]
+
+jobs:
+  spec-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify generated OpenAPI artifacts are up to date
+        run: npm run spec:check

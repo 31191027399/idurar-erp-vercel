@@ -1,4 +1,16 @@
-const update = async (Model, req, res) => {
+const update = async (Model, req, res, joiSchema) => {
+  // Validate input if a Joi schema was provided (entity has a declaration).
+  if (joiSchema) {
+    const { error } = joiSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        result: null,
+        message: error.details[0] ? error.details[0].message : 'Validation error',
+      });
+    }
+  }
+
   // Find document by id and updates with the required fields
   req.body.removed = false;
   const result = await Model.findOneAndUpdate(

@@ -14,6 +14,8 @@
     "setup": "node backend/src/setup/setup.js",
     "seed": "node backend/src/setup/seed.js",
     "seed:clean": "node backend/src/setup/seed.js --clean",
+    "spec:gen": "node scripts/gen-spec.js",
+    "spec:check": "node scripts/spec-check.js",
     "postinstall": "cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
@@ -45,6 +47,7 @@
     "transliteration": "^2.3.5"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "js-yaml": "^4.1.0"
   }
 }

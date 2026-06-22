@@ -2,11 +2,19 @@ const { basename, extname, join } = require('path');
 const { globSync } = require('glob');
 
 const modelsRoot = join(__dirname, '..');
-const appModelsFiles = globSync(join(modelsRoot, 'appModels/**/*.js'));
+
+// Glob appModels for storage schema files only. Exclude:
+//   - *.openapi.js   (entity declarations — sibling contract files, not models)
+//   - _components/** (shared sub-schemas — no model, no routes)
+const appModelsFiles = globSync(join(modelsRoot, 'appModels/**/*.js'), {
+  ignore: ['**/*.openapi.js', '**/_components/**'],
+});
 
 const pattern = join(modelsRoot, '**/*.js');
 
-const modelsFiles = globSync(pattern).map((filePath) => {
+const modelsFiles = globSync(pattern, {
+  ignore: ['**/*.openapi.js', '**/_components/**'],
+}).map((filePath) => {
   const fileNameWithExtension = basename(filePath);
   const fileNameWithoutExtension = fileNameWithExtension.replace(
     extname(fileNameWithExtension),

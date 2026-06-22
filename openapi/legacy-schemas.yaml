@@ -1,0 +1,353 @@
+components:
+  schemas:
+    Admin:
+      properties:
+        _id:
+          type: string
+        email:
+          format: email
+          type: string
+        enabled:
+          type: boolean
+        name:
+          type: string
+        photo:
+          type: string
+        role:
+          enum:
+            - owner
+            - admin
+            - manager
+            - employee
+            - create_only
+            - read_only
+          type: string
+        surname:
+          type: string
+      type: object
+    AdminApiKey:
+      properties:
+        _id:
+          type: string
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        key:
+          description: Returned only once after creation.
+          type: string
+        keyPrefix:
+          type: string
+        name:
+          type: string
+        revoked:
+          type: boolean
+        scopes:
+          items:
+            type: string
+          type: array
+      type: object
+    AdminApiKeyCreateRequest:
+      properties:
+        expiresInDays:
+          nullable: true
+          type: integer
+        name:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      required:
+        - name
+      type: object
+    ApiResponse:
+      properties:
+        message:
+          type: string
+        result:
+          nullable: true
+        success:
+          type: boolean
+      type: object
+    Client:
+      properties:
+        _id:
+          type: string
+        address:
+          type: string
+        assigned:
+          type: string
+        country:
+          type: string
+        createdBy:
+          type: string
+        email:
+          format: email
+          type: string
+        enabled:
+          type: boolean
+        name:
+          type: string
+        phone:
+          type: string
+      required:
+        - name
+      type: object
+    ForgetPasswordRequest:
+      properties:
+        email:
+          format: email
+          type: string
+      required:
+        - email
+      type: object
+    IntegrationSettings:
+      properties:
+        apiKey:
+          format: password
+          type: string
+        baseUrl:
+          example: https://api.example.com
+          format: uri
+          type: string
+        hasApiKey:
+          readOnly: true
+          type: boolean
+        serviceName:
+          example: Stripe
+          type: string
+      required:
+        - serviceName
+        - baseUrl
+        - apiKey
+      type: object
+    Invoice:
+      properties:
+        _id:
+          type: string
+        client:
+          type: string
+        credit:
+          type: number
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        discount:
+          type: number
+        expiredDate:
+          format: date-time
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/LineItem'
+          type: array
+        notes:
+          type: string
+        number:
+          type: integer
+        paymentStatus:
+          type: string
+        status:
+          type: string
+        subTotal:
+          type: number
+        taxRate:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        year:
+          type: integer
+      type: object
+    LineItem:
+      properties:
+        description:
+          type: string
+        itemName:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: number
+        total:
+          type: number
+      required:
+        - itemName
+        - quantity
+        - price
+        - total
+      type: object
+    LoginRequest:
+      properties:
+        email:
+          format: email
+          type: string
+        password:
+          type: string
+        remember:
+          type: boolean
+      required:
+        - email
+        - password
+      type: object
+    MailRequest:
+      properties:
+        email:
+          format: email
+          type: string
+        id:
+          type: string
+      type: object
+    MaintenanceSeedRequest:
+      properties:
+        clean:
+          default: true
+          type: boolean
+        counts:
+          properties:
+            clients:
+              type: integer
+            invoices:
+              type: integer
+            payments:
+              type: integer
+            quotes:
+              type: integer
+          type: object
+      type: object
+    PaginatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - properties:
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+          type: object
+    Pagination:
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      type: object
+    Payment:
+      properties:
+        _id:
+          type: string
+        amount:
+          type: number
+        client:
+          type: string
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        description:
+          type: string
+        invoice:
+          type: string
+        number:
+          type: integer
+        ref:
+          type: string
+      type: object
+    PaymentMode:
+      properties:
+        _id:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        isDefault:
+          type: boolean
+        name:
+          type: string
+      type: object
+    Quote:
+      properties:
+        _id:
+          type: string
+        client:
+          type: string
+        currency:
+          type: string
+        date:
+          format: date-time
+          type: string
+        discount:
+          type: number
+        expiredDate:
+          format: date-time
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/LineItem'
+          type: array
+        notes:
+          type: string
+        number:
+          type: integer
+        status:
+          type: string
+        subTotal:
+          type: number
+        taxRate:
+          type: number
+        taxTotal:
+          type: number
+        total:
+          type: number
+        year:
+          type: integer
+      type: object
+    ResetPasswordRequest:
+      properties:
+        password:
+          type: string
+        resetToken:
+          type: string
+        userId:
+          type: string
+      required:
+        - userId
+        - resetToken
+        - password
+      type: object
+    Setting:
+      properties:
+        _id:
+          type: string
+        enabled:
+          type: boolean
+        isCoreSetting:
+          type: boolean
+        isPrivate:
+          type: boolean
+        settingCategory:
+          type: string
+        settingKey:
+          type: string
+        settingValue: {}
+        valueType:
+          type: string
+      type: object
+    Taxes:
+      properties:
+        _id:
+          type: string
+        enabled:
+          type: boolean
+        isDefault:
+          type: boolean
+        taxName:
+          type: string
+        taxValue:
+          type: string
+      type: object

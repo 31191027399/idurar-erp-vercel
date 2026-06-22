@@ -1,0 +1,89 @@
+components:
+  schemas:
+    Taxes:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        _id:
+          format: objectid
+          readOnly: true
+          type: string
+        createdAt:
+          format: date-time
+          readOnly: true
+          type: string
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+        removed:
+          readOnly: true
+          type: boolean
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+        updatedAt:
+          format: date-time
+          readOnly: true
+          type: string
+      type: object
+    TaxesCreate:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+          writeOnly: true
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+          writeOnly: true
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+          writeOnly: true
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+          writeOnly: true
+      required:
+        - taxName
+        - taxValue
+      type: object
+    TaxesResponse:
+      $ref: '#/components/schemas/Taxes'
+    TaxesUpdate:
+      additionalProperties: false
+      description: A tax rate applicable to invoice line items.
+      properties:
+        enabled:
+          description: Soft-disable a tax rate without deleting it.
+          type: boolean
+        isDefault:
+          description: Whether this tax rate is the default applied to new invoices.
+          type: boolean
+        taxName:
+          description: Human-readable name of the tax (e.g. "VAT", "Sales Tax").
+          example: VAT
+          type: string
+        taxValue:
+          description: >-
+            Tax rate as a string (e.g. "5", "7.5"). Stored as string per model; clients should parse
+            for arithmetic.
+          example: '7.5'
+          type: string
+      type: object

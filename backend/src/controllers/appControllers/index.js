@@ -7,7 +7,7 @@ const path = require('path');
 const pattern = path.join(__dirname, '*/');
 const controllerDirectories = globSync(pattern).map((filePath) => {
   return path.basename(filePath);
-});
+}).filter((name) => !name.startsWith('_')); // skip _generated/ and other underscore-prefixed dirs
 
 const appControllers = () => {
   const controllers = {};
